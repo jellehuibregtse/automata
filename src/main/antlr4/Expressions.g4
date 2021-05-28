@@ -6,10 +6,10 @@ expression
     ;
 
 expr
-    :	expr ('*'|'/') expr # Mult
-    |	expr ('+'|'-') expr # Add
-    |	NUMBER              # Number
-    |	'(' expr ')'        # Parenthesis
+    :	expr WHITESPACE? ('*'|'/') WHITESPACE? expr                  # Mult
+    |	expr WHITESPACE? ('+'|'-') WHITESPACE? expr                  # Add
+    |	NUMBER                                                       # Number
+    |	WHITESPACE? '(' WHITESPACE? expr WHITESPACE? ')' WHITESPACE? # Parenthesis
     ;
 
 statement

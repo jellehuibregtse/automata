@@ -50,7 +50,7 @@ public class AntlrExpressionsListener extends ExpressionsBaseListener {
         int a = stack.pop().value;
         int b = stack.pop().value;
 
-        String operation = ctx.getChild(1).getText();
+        String operation = ctx.children.stream().filter(t -> t.getText().equals("*") || t.getText().equals("/")).findFirst().orElseThrow(NullPointerException::new).getText();
 
         if (operation.equals("*")) {
             stack.push(new Variable(null, a * b));
@@ -64,7 +64,7 @@ public class AntlrExpressionsListener extends ExpressionsBaseListener {
         int a = stack.pop().value;
         int b = stack.pop().value;
 
-        String operation = ctx.getChild(1).getText();
+        String operation = ctx.children.stream().filter(t -> t.getText().equals("+") || t.getText().equals("-")).findFirst().orElseThrow(NullPointerException::new).getText();
 
         if (operation.equals("+")) {
             stack.push(new Variable(null, a + b));
