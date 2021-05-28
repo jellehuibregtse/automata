@@ -2,7 +2,7 @@ grammar Expressions;
 
 expression
     :   (NEWLINE | WHITESPACE)* expr (NEWLINE | WHITESPACE)*
-    |   ((NEWLINE | WHITESPACE)* statement (NEWLINE | WHITESPACE)*)*
+    |   (NEWLINE | WHITESPACE)* statement (NEWLINE | WHITESPACE)* ((NEWLINE | WHITESPACE)* NEWLINE+ (NEWLINE | WHITESPACE)* statement (NEWLINE | WHITESPACE)*)*
     ;
 
 expr
@@ -13,10 +13,10 @@ expr
     ;
 
 statement
-    : 'var' WHITESPACE TEXT WHITESPACE? '=' WHITESPACE? expr WHITESPACE? NEWLINE # Var
-    | TEXT WHITESPACE? '=' WHITESPACE? expr WHITESPACE? NEWLINE # Assign
-    | 'print' WHITESPACE? '(' TEXT ')' NEWLINE # Print
-    | 'return' WHITESPACE (expr | TEXT) (NEWLINE|WHITESPACE)* # Return
+    : 'var' WHITESPACE TEXT WHITESPACE? '=' WHITESPACE? expr WHITESPACE? # Var
+    | TEXT WHITESPACE? '=' WHITESPACE? expr WHITESPACE? # Assign
+    | 'print' WHITESPACE? '(' TEXT ')' # Print
+    | 'return' WHITESPACE (expr | TEXT) # Return
     ;
 
 NEWLINE
