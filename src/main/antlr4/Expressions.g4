@@ -2,7 +2,7 @@ grammar Expressions;
 
 expression
     :   (NEWLINE | WHITESPACE)* expr (NEWLINE | WHITESPACE)*
-    |   (var_st | assign_st | print_st)* return_st
+    |   ((NEWLINE | WHITESPACE)* statement (NEWLINE | WHITESPACE)*)*
     ;
 
 expr
@@ -12,23 +12,20 @@ expr
     |	'(' expr ')'        # Parenthesis
     ;
 
-var_st
-    : 'var' WHITESPACE STRING WHITESPACE? '=' WHITESPACE? expr WHITESPACE? NEWLINE ;
-
-assign_st
-    : STRING WHITESPACE? '=' WHITESPACE? expr WHITESPACE? NEWLINE ;
-
-print_st
-    : 'print' WHITESPACE? '(' (expr | STRING) ')' NEWLINE ;
-
-return_st
-    : 'return' WHITESPACE (expr | STRING) (NEWLINE|WHITESPACE)* ;
+statement
+    : 'var' WHITESPACE TEXT WHITESPACE? '=' WHITESPACE? expr WHITESPACE? NEWLINE # Var
+    | TEXT WHITESPACE? '=' WHITESPACE? expr WHITESPACE? NEWLINE # Assign
+    | 'print' WHITESPACE? '(' TEXT ')' NEWLINE # Print
+    | 'return' WHITESPACE (expr | TEXT) (NEWLINE|WHITESPACE)* # Return
+    ;
 
 NEWLINE
     :   [\r\n]+ ;
 WHITESPACE
     :   [\t ]+ ;
 STRING
+    :   ["]TEXT["] ;
+TEXT
     :   (LETTER)(LETTER|DIGIT|[_])* ;
 NUMBER
     :   DIGIT+ ;

@@ -9,13 +9,41 @@ class ExpressionsParserUnitTest {
 
     @Test
     void simpleTest() {
-        String expression = "9+10*23\r\n";
+        String expression = "9+10*23";
         ExpressionsLexer lexer = new ExpressionsLexer(CharStreams.fromString(expression));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         ExpressionsParser parser = new ExpressionsParser(tokens);
 
         ParseTree tree = parser.expression();
-        AntlrExpressionsListener listener = new AntlrExpressionsListener();
+        AntlrExpressionsListener listener = new AntlrExpressionsListener(true);
+        ParseTreeWalker.DEFAULT.walk(listener, tree);
+
+        Assertions.assertEquals(239, listener.getResult());
+    }
+
+    @Test
+    void returnTest() {
+        String expression = "return 9+10*23";
+        ExpressionsLexer lexer = new ExpressionsLexer(CharStreams.fromString(expression));
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        ExpressionsParser parser = new ExpressionsParser(tokens);
+
+        ParseTree tree = parser.expression();
+        AntlrExpressionsListener listener = new AntlrExpressionsListener(false);
+        ParseTreeWalker.DEFAULT.walk(listener, tree);
+
+        Assertions.assertEquals(239, listener.getResult());
+    }
+
+    @Test
+    void varTest() {
+        String expression = "var test1 = 9+10*23\r\nprint(test1)\r\nvar test2 = 250*2\r\nprint(test2)\r\nreturn test1";
+        ExpressionsLexer lexer = new ExpressionsLexer(CharStreams.fromString(expression));
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        ExpressionsParser parser = new ExpressionsParser(tokens);
+
+        ParseTree tree = parser.expression();
+        AntlrExpressionsListener listener = new AntlrExpressionsListener(false);
         ParseTreeWalker.DEFAULT.walk(listener, tree);
 
         Assertions.assertEquals(239, listener.getResult());
