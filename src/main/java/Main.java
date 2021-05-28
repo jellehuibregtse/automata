@@ -13,7 +13,7 @@ public class Main {
         var parser = new ExpressionsParser(tokens);
 
         ParseTree tree = parser.expression();
-        var listener = new AntlrExpressionsListener();
+        var listener = new AntlrExpressionsListener(true);
         ParseTreeWalker.DEFAULT.walk(listener, tree);
     }
 }
