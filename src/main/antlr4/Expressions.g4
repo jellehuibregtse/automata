@@ -1,16 +1,25 @@
 grammar Expressions;
 
 expression
-    :   (expr NEWLINE)* ;
+    :   ((expr | ('var' WHITESPACE)? STRING WHITESPACE? '=' WHITESPACE? expr | 'print' WHITESPACE? '(' (expr | STRING) ')') NEWLINE)* ;
 
 expr
-    :	expr ('*'|'/') expr # Mult
+    :	'(' expr ')'        # Parenthesis
+    |	expr ('*'|'/') expr # Mult
     |	expr ('+'|'-') expr # Add
     |	NUMBER              # Number
-    |	'(' expr ')'        # Parenthesis
+    |	WHITESPACE          # Whitespace
     ;
 
 NEWLINE
     :   [\r\n]+ ;
+WHITESPACE
+    :   [\t ]+ ;
+DIGIT
+    :   [0-9] ;
 NUMBER
-    :   [0-9]+ ;
+    :   DIGIT+ ;
+LETTER
+    :   [A-Za-z] ;
+STRING
+    :   (LETTER)(LETTER|DIGIT|[_])* ;
