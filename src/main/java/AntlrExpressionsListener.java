@@ -1,12 +1,13 @@
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class AntlrExpressionsListener extends ExpressionsBaseListener {
-    private final Stack<Variable> stack = new Stack<>();
+    private final Deque<Variable> stack = new ArrayDeque<>();
     private Integer result;
-    private boolean printSteps;
+    private final boolean printSteps;
 
     AntlrExpressionsListener(boolean printSteps) {
         this.printSteps = printSteps;
@@ -24,9 +25,9 @@ public class AntlrExpressionsListener extends ExpressionsBaseListener {
     public void exitReturn(ExpressionsParser.ReturnContext ctx) {
         if (result == null) {
             if (ctx.TEXT() != null) {
-                stack.forEach(var -> {
-                    if (var.name.equals(ctx.TEXT().getText())) {
-                        result = var.value;
+                stack.forEach(v -> {
+                    if (v.name.equals(ctx.TEXT().getText())) {
+                        result = v.value;
                     }
                 });
                 if (result == null) {
@@ -75,39 +76,44 @@ public class AntlrExpressionsListener extends ExpressionsBaseListener {
 
     @Override
     public void exitVar(ExpressionsParser.VarContext ctx) {
-        if (stack.stream().anyMatch((var) -> var.name != null && var.name.equals(ctx.TEXT().getText())))
+        if (stack.stream().anyMatch(v -> v.name != null && v.name.equals(ctx.TEXT().getText()))) {
             throw new IllegalArgumentException("Variable '" + ctx.TEXT().getText() + "' is already defined in the scope.");
+        }
         stack.push(new Variable(ctx.TEXT().getText(), stack.pop().value));
     }
 
     @Override
     public void exitPrint(ExpressionsParser.PrintContext ctx) {
         if (ctx.TEXT() != null) {
-            Variable variable = stack.stream().filter((var) -> var.name.equals(ctx.TEXT().getText())).findFirst().orElse(null);
-            if(variable == null)
+            var variable = stack.stream().filter(v -> v.name.equals(ctx.TEXT().getText())).findFirst().orElse(null);
+            if (variable == null) {
                 throw new NullPointerException("Cannot resolve '" + ctx.TEXT().getText() + "'");
+            }
             System.out.println("Out: " + variable.value);
-        } else
+        } else {
             System.out.println("Out: " + stack.pop().value);
+        }
     }
 
     @Override
     public void visitTerminal(TerminalNode node) {
-        if (printSteps)
+        if (printSteps) {
             System.out.println("Terminal node: " + node.getText());
+        }
     }
 
     @Override
     public void enterEveryRule(ParserRuleContext ctx) {
-        if (printSteps)
+        if (printSteps) {
             System.out.println("Rule: " + ctx.getText());
+        }
     }
 
     public int getResult() {
         return result;
     }
 
-    private class Variable {
+    private static class Variable {
         String name;
         Integer value;
 
