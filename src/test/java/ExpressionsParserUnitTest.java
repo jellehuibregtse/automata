@@ -11,6 +11,14 @@ import java.util.stream.Stream;
 
 class ExpressionsParserUnitTest {
 
+    private static Stream<Arguments> testExpressions_usingListener_parameters() {
+        return Stream.of(
+                Arguments.of("9+10*23", 239, true),
+                Arguments.of("return 9+10*23", 239, false),
+                Arguments.of("var test1 = 9+10*23\r\nprint(test1)\r\nvar test2 = 250*2\r\nprint(test2)\r\nreturn test1", 239, false)
+        );
+    }
+
     @ParameterizedTest
     @MethodSource("testExpressions_usingListener_parameters")
     void testExpressions_usingListener(String expression, int expectedOutput, boolean printSteps) {
@@ -23,13 +31,5 @@ class ExpressionsParserUnitTest {
         ParseTreeWalker.DEFAULT.walk(listener, tree);
 
         Assertions.assertEquals(expectedOutput, listener.getResult());
-    }
-
-    private static Stream<Arguments> testExpressions_usingListener_parameters() {
-        return Stream.of(
-                Arguments.of("9+10*23", 239, true),
-                Arguments.of("return 9+10*23", 239, false),
-                Arguments.of("var test1 = 9+10*23\r\nprint(test1)\r\nvar test2 = 250*2\r\nprint(test2)\r\nreturn test1", 239, false)
-        );
     }
 }
