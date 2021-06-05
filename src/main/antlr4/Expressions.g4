@@ -1,28 +1,28 @@
 grammar Expressions;
 
 expression
-    :   (NEWLINE | WHITESPACE)* expr (NEWLINE | WHITESPACE)*
-    |   (NEWLINE | WHITESPACE)* statement (NEWLINE | WHITESPACE)* ((NEWLINE | WHITESPACE)* NEWLINE+ (NEWLINE | WHITESPACE)* statement (NEWLINE | WHITESPACE)*)*
+    :   (NEWLINE)* expr (NEWLINE)*
+    |   (NEWLINE)* statement (NEWLINE)* ((NEWLINE)* NEWLINE+ (NEWLINE)* statement (NEWLINE)*)*
     ;
 
 expr
-    :	expr WHITESPACE? ('*'|'/') WHITESPACE? expr                  # Mult
-    |	expr WHITESPACE? ('+'|'-') WHITESPACE? expr                  # Add
-    |	NUMBER                                                       # Number
-    |	WHITESPACE? '(' WHITESPACE? expr WHITESPACE? ')' WHITESPACE? # Parenthesis
+    :	expr ('*'|'/') expr         # Mult
+    |	expr ('+'|'-') expr         # Add
+    |	NUMBER                      # Number
+    |	 '('  expr ')'              # Parenthesis
     ;
 
 statement
-    : 'var' WHITESPACE TEXT WHITESPACE? '=' WHITESPACE? expr WHITESPACE? # Var
-    | TEXT WHITESPACE? '=' WHITESPACE? expr WHITESPACE? # Assign
-    | 'print' WHITESPACE? '(' TEXT ')' # Print
-    | 'return' WHITESPACE (expr | TEXT) # Return
+    : 'var' TEXT '=' expr           # Var
+    | TEXT '=' expr                 # Assign
+    | 'print' '(' TEXT ')'          # Print
+    | 'return' (expr | TEXT)        # Return
     ;
 
 NEWLINE
     :   [\r\n]+ ;
 WHITESPACE
-    :   [\t ]+ ;
+    :   [\t\r\n ]+ -> skip ;
 STRING
     :   ["]TEXT["] ;
 TEXT
