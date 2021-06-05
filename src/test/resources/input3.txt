@@ -1,0 +1,5 @@
+var test1 = 9+10*23
+print(test1)
+var test2 = 250*2
+print(test2)
+return test1
