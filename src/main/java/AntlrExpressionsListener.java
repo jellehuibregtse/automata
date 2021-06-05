@@ -6,8 +6,8 @@ import java.util.Deque;
 
 public class AntlrExpressionsListener extends ExpressionsBaseListener {
     private final Deque<Variable> stack = new ArrayDeque<>();
-    private Integer result;
     private final boolean printSteps;
+    private Integer result;
 
     AntlrExpressionsListener(boolean printSteps) {
         this.printSteps = printSteps;

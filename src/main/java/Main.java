@@ -12,6 +12,23 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException {
+        Visitor();
+    }
+
+    private static void Visitor() throws IOException {
+        // Get input from user.
+        System.out.println("Please enter the path to the input file below.");
+        var input = CharStreams.fromString(getFile(new Scanner(System.in).nextLine()));
+        var lexer = new ArithmeticLexer(input);
+        var tokens = new CommonTokenStream(lexer);
+        var parser = new ArithmeticParser(tokens);
+
+        ParseTree tree = parser.program();
+        AntlrArithmeticVisitor visitor = new AntlrArithmeticVisitor();
+        visitor.visit(tree);
+    }
+
+    private static void Listener() throws IOException {
         // Get input from user.
         System.out.println("Please enter the path to the input file below.");
         var input = CharStreams.fromString(getFile(new Scanner(System.in).nextLine()));
