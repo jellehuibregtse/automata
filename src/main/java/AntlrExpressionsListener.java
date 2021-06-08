@@ -1,16 +1,15 @@
+import lombok.Getter;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class AntlrExpressionsListener extends ExpressionsBaseListener {
     private final Deque<Variable> stack = new ArrayDeque<>();
     private final boolean printSteps;
-    private Integer result;
+    @Getter private Integer result;
+    @Getter private String out = "";
 
     AntlrExpressionsListener(boolean printSteps) {
         this.printSteps = printSteps;
@@ -20,7 +19,7 @@ public class AntlrExpressionsListener extends ExpressionsBaseListener {
     public void exitExpression(ExpressionsParser.ExpressionContext ctx) {
         if (result == null) {
             result = stack.pop().value;
-            System.out.println("Result: " + result);
+            printValue("Result: " + result);
         }
     }
 
@@ -39,7 +38,7 @@ public class AntlrExpressionsListener extends ExpressionsBaseListener {
             } else {
                 result = stack.pop().value;
             }
-            System.out.println("Result: " + result);
+            printValue("Result: " + result);
         }
     }
 
@@ -97,46 +96,29 @@ public class AntlrExpressionsListener extends ExpressionsBaseListener {
             if (variable == null) {
                 throw new NullPointerException("Cannot resolve '" + ctx.VALUE().getText() + "'");
             }
-            System.out.println("Out: " + variable.value);
+            printValue("Out: " + variable.value);
         } else {
-            System.out.println("Out: " + stack.pop().value);
+            printValue("Out: " + stack.pop().value);
         }
     }
 
     @Override
     public void visitTerminal(TerminalNode node) {
         if (printSteps) {
-            System.out.println("Terminal node: " + node.getText());
+            printValue("Terminal node: " + node.getText());
         }
     }
 
     @Override
     public void enterEveryRule(ParserRuleContext ctx) {
         if (printSteps) {
-            System.out.println("Rule: " + ctx.getText());
+            printValue("Rule: " + ctx.getText());
         }
     }
 
-    public int getResult() {
-        return result;
-    }
-
-    public void print() {
-        System.out.println(getResult());
-    }
-
-    public void generateOutputFile() {
-        var directory = new File("./output");
-
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-
-        try (var out = new PrintWriter("./output/output.txt")) {
-            out.println(getResult());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+    private void printValue(String message) {
+        out += (!out.equals("")? "\n" : "") + message;
+        System.out.println(message);
     }
 
     private static class Variable {

@@ -45,6 +45,8 @@ public class Main {
         ParseTreeWalker.DEFAULT.walk(listener, tree);
 
         listener.print();
+
+        new GenerateOutput(listener.getOut());
     }
 
     private static void Visitor(String input) {
@@ -58,6 +60,8 @@ public class Main {
         ParseTree tree = parser.program();
         AntlrArithmeticVisitor visitor = new AntlrArithmeticVisitor();
         visitor.visit(tree);
+
+        new GenerateOutput(visitor.getOut());
     }
 
     private static void Listener(String input) {
@@ -71,6 +75,8 @@ public class Main {
         ParseTree tree = parser.expression();
         var listener = new AntlrExpressionsListener(true);
         ParseTreeWalker.DEFAULT.walk(listener, tree);
+
+        new GenerateOutput(listener.getOut());
     }
 
     private static String getUserInput() throws IOException {

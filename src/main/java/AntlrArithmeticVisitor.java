@@ -9,6 +9,7 @@ import java.util.stream.LongStream;
 
 public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeticVisitor.Variable> {
     private final Map<String, Variable> memory = new HashMap<>();
+    @Getter private String out = "";
 
     @Override
     public Variable visitAssignment(ArithmeticParser.AssignmentContext ctx) {
@@ -44,6 +45,7 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
     public Variable visitPrint(ArithmeticParser.PrintContext ctx) {
         var variable = this.visit(ctx.expression());
 
+        out += (!out.equals("")? "\n" : "") + variable.getValue();
         System.out.println(variable.getValue());
         return variable;
     }
