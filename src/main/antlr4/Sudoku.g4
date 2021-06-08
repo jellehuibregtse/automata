@@ -41,7 +41,7 @@ INT
     ;
 
 NUMBER
-    :   [0-9]+
+    :   [1-9]
     ;
 
 WHITESPACE
