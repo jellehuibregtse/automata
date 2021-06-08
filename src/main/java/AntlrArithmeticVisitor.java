@@ -51,7 +51,7 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
 
     @Override
     public Variable visitStringExpression(ArithmeticParser.StringExpressionContext ctx) {
-        return new Variable(ctx.getText());
+        return new Variable(ctx.getText().substring(1, ctx.getText().length()-1));
     }
 
     @Override
@@ -252,22 +252,21 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
             var aType = a.getType();
             var bType = b.getType();
 
-            if (!aType.equals(bType)) {
+            if (!((aType.equals(bType) && a.type == TYPE.NUMBER) || a.type == TYPE.STRING || b.type == TYPE.STRING)) {
                 throw new TypeMisMatchException("Type error: Type mismatch");
             }
 
-            if (a.getString() != null && b.getString() != null) {
-                var x1 = a.getString().substring(1, a.getString().length() - 1);
-                var x2 = b.getString().substring(1, b.getString().length() - 1);
+            if (a.type == TYPE.STRING || b.type == TYPE.STRING) {
+                var x1 = a.getValue().toString();
+                var x2 = b.getValue().toString();
 
-                String result = x1 + x2;
-
+                this.string = x1 + x2;
                 this.type = TYPE.STRING;
-                this.string = result;
             }
-
-            this.number = a.getNumber() + b.getNumber();
-            this.type = TYPE.NUMBER;
+            else {
+                this.number = a.getNumber() + b.getNumber();
+                this.type = TYPE.NUMBER;
+            }
         }
     }
 }
