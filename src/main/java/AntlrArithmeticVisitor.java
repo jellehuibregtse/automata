@@ -14,8 +14,29 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
     public Variable visitAssignment(ArithmeticParser.AssignmentContext ctx) {
         String id = ctx.VALUE().getText();
         Variable value = null;
-        if (ctx.children.stream().anyMatch(e -> e.getText().equals("=")))
+        if (ctx.children.get(1).getText().equals("+=")) {
+            Variable old = memory.get(id);
+            if (old == null) {
+                new TypeMisMatchException("There is no variable with name: " + id).printStackTrace();
+            } else {
+                try {
+                    Variable result = new Variable();
+                    result.concatVariables(this.visit(ctx.expression()), old);
+                    value = result;
+                } catch (TypeMisMatchException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else if (ctx.children.get(1).getText().equals("-=")) {
+            Variable old = memory.get(id);
+            if (old == null) {
+                new TypeMisMatchException("There is no variable with name: " + id).printStackTrace();
+            } else {
+                value = new Variable(old.getNumber() - this.visit(ctx.expression()).getNumber());
+            }
+        } else if (ctx.children.stream().anyMatch(e -> e.getText().equals("="))) {
             value = this.visit(ctx.expression());
+        }
         return memory.put(id, value);
     }
 
@@ -34,11 +55,7 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
         Variable value = memory.get(name);
 
         if (value == null) {
-            try {
-                throw new TypeMisMatchException("There is no variable with name: " + name);
-            } catch (TypeMisMatchException e) {
-                e.printStackTrace();
-            }
+            new TypeMisMatchException("There is no variable with name: " + name).printStackTrace();
         }
 
         return value;
