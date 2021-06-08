@@ -53,31 +53,30 @@ expression
     |   STRING			                                                # StringExpression
     ;
 
-
 TRUE
-    : 'true'
+    :   'true'
     ;
 
 FALSE
-    : 'false'
+    :   'false'
     ;
 
 STRING
-    : ["].*?["]
+    :   ["].*?["]
     ;
 
 TYPE
-    : 'number' | 'boolean' | 'string'
+    :   'number' | 'boolean' | 'string'
     ;
 
 VALUE
-    : [a-zA-Z]+
+    :   [a-zA-Z]+
     ;
 
 WHITESPACE
-    : [ \t\r\n]+ -> skip
+    :   [ \t\r\n]+ -> skip
     ;
 
 NUMBER
-    : [0-9]+
+    :   [0-9]+
     ;
