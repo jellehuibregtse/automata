@@ -37,8 +37,8 @@ public class Main {
         var tokens = new CommonTokenStream(lexer);
         var parser = new SudokuParser(tokens);
         parser.removeErrorListeners();
+        lexer.removeErrorListeners();
         parser.addErrorListener(ThrowingErrorListener.INSTANCE);
-        parser.setErrorHandler(new BailErrorStrategy());
 
         ParseTree tree = parser.result();
         var listener = new AntlrSudokuListener();
@@ -52,8 +52,8 @@ public class Main {
         var tokens = new CommonTokenStream(lexer);
         var parser = new ArithmeticParser(tokens);
         parser.removeErrorListeners();
+        lexer.removeErrorListeners();
         parser.addErrorListener(ThrowingErrorListener.INSTANCE);
-        parser.setErrorHandler(new BailErrorStrategy());
 
         ParseTree tree = parser.program();
         AntlrArithmeticVisitor visitor = new AntlrArithmeticVisitor();
@@ -65,8 +65,8 @@ public class Main {
         var tokens = new CommonTokenStream(lexer);
         var parser = new ExpressionsParser(tokens);
         parser.removeErrorListeners();
+        lexer.removeErrorListeners();
         parser.addErrorListener(ThrowingErrorListener.INSTANCE);
-        parser.setErrorHandler(new BailErrorStrategy());
 
         ParseTree tree = parser.expression();
         var listener = new AntlrExpressionsListener(true);
