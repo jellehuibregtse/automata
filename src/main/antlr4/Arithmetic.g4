@@ -20,7 +20,7 @@ condition_block
     ;
 
 code_block
-    :   '{' program '}'
+    :   '{' program? '}'
     |   NEWLINE? statement
     ;
 
