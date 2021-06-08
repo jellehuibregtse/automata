@@ -84,6 +84,13 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
     }
 
     @Override
+    public Variable visitModulusExpression(ArithmeticParser.ModulusExpressionContext ctx) {
+        var left = this.visit(ctx.expression(0)).getNumber();
+        var right = this.visit(ctx.expression(1)).getNumber();
+        return new Variable(left % right);
+    }
+
+    @Override
     public Variable visitMultiplicationExpression(ArithmeticParser.MultiplicationExpressionContext ctx) {
         var left = this.visit(ctx.expression(0)).getNumber();
         var right = this.visit(ctx.expression(1)).getNumber();
@@ -191,14 +198,16 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
 
     @Override
     public Variable visitWhile_statement(ArithmeticParser.While_statementContext ctx) {
-        Variable value = this.visit(ctx.expression());
+        ArithmeticParser.Condition_blockContext condition = ctx.condition_block();
+
+        Variable value = this.visit(condition.expression());
 
         while (Boolean.TRUE.equals(value.getBool())) {
             // Visit code block
-            this.visit(ctx.code_block());
+            this.visit(condition.code_block());
 
             // Evaluate expression
-            value = this.visit(ctx.expression());
+            value = this.visit(condition.expression());
         }
         return new Variable();
     }

@@ -8,9 +8,3 @@ if (a + b == 15) {
 } else {
     print("a + b ≠ 15")
 }
-
-var n: number = 0
-while n < 10 {
-    print("n = " + n)
-    n += 1
-}

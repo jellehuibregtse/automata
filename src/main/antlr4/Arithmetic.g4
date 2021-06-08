@@ -15,21 +15,21 @@ if_statement
     :   'if' condition_block ('else if' condition_block)* ('else' code_block)?
     ;
 
+while_statement
+    :   'while' condition_block
+    ;
+
 condition_block
     :   expression code_block
     ;
 
 code_block
-    :   '{' program? '}'
+    :   NEWLINE* '{' (NEWLINE*|program?) '}'
     |   NEWLINE? statement
     ;
 
-while_statement
-    :   'while' expression code_block
-    ;
-
 print
-    :   'print' '(' expression ')'
+    :   'print' expression
     ;
 
 assignment
@@ -40,6 +40,7 @@ assignment
 
 expression
     :   expression '**' expression										# PowerExpression
+	|   expression '%' expression										# ModulusExpression
 	|   expression ('*' | '/') expression								# MultiplicationExpression
 	|   expression ('+' | '-') expression								# AdditionExpression
 	|   expression '!'											        # FactorialExpression
@@ -54,7 +55,7 @@ expression
     ;
 
 NEWLINE
-    :   [\r\n]
+    :   ('\r'? '\n')
     ;
 
 TRUE

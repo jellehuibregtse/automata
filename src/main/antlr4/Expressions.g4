@@ -8,8 +8,8 @@ expression
 expr
     :	expr ('*'|'/') expr         # Mult
     |	expr ('+'|'-') expr         # Add
+    |	'('  expr ')'               # Parenthesis
     |	NUMBER                      # Number
-    |	'('  expr ')'              # Parenthesis
     ;
 
 statement
@@ -22,7 +22,7 @@ NEWLINE
 WHITESPACE
     :   [\t ] -> skip ;
 VALUE
-    :   (LETTER)(LETTER|DIGIT|[_])* ;
+    :   (LETTER)(LETTER|DIGIT|'_')* ;
 NUMBER
     :   DIGIT+ ;
 DIGIT
