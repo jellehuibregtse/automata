@@ -1,5 +1,6 @@
 var a: number = 10
-var b: number = 5
+var b: number
+b = 5
 
 if (a + b == 15) {
     print("a + b = 15")

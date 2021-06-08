@@ -13,7 +13,9 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
     @Override
     public Variable visitAssignment(ArithmeticParser.AssignmentContext ctx) {
         String id = ctx.VALUE().getText();
-        Variable value = this.visit(ctx.expression());
+        Variable value = null;
+        if (ctx.children.stream().anyMatch(e -> e.getText().equals("=")))
+            value = this.visit(ctx.expression());
         return memory.put(id, value);
     }
 
