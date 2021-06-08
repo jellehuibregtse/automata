@@ -2,7 +2,7 @@ grammar Expressions;
 
 expression
     :   (NEWLINE)* expr (NEWLINE)*
-    |   (NEWLINE)* statement (NEWLINE)* ((NEWLINE)* NEWLINE+ (NEWLINE)* statement (NEWLINE)*)*
+    |   (NEWLINE)* statement (NEWLINE)* (NEWLINE+ statement (NEWLINE)*)*
     ;
 
 expr
@@ -13,19 +13,16 @@ expr
     ;
 
 statement
-    : 'var' TEXT '=' expr           # Var
-    | TEXT '=' expr                 # Assign
-    | 'print' '(' TEXT ')'          # Print
-    | 'return' (expr | TEXT)        # Return
+    : 'var'? VALUE '=' expr          # Var
+    | 'print' '(' VALUE ')'          # Print
+    | 'return' (expr | VALUE)        # Return
     ;
 
 NEWLINE
-    :   [\r\n]+ ;
+    :   [\r\n] ;
 WHITESPACE
-    :   [\t\r\n ]+ -> skip ;
-STRING
-    :   ["]TEXT["] ;
-TEXT
+    :   [\t\r\n ] -> skip ;
+VALUE
     :   (LETTER)(LETTER|DIGIT|[_])* ;
 NUMBER
     :   DIGIT+ ;
