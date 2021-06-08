@@ -1,69 +1,87 @@
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CodePointCharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        Sudoku();
+        while (true) {
+            String input = getUserInput();
+
+            try {
+                Sudoku(input);
+            } catch (ParseCancellationException e) {
+                try {
+                    Listener(input);
+                } catch (ParseCancellationException e2) {
+                    try {
+                        Visitor(input);
+                    } catch (ParseCancellationException e3) {
+                        System.err.println("Invalid input provided");
+                        System.err.println("Sudoku: " + e.getMessage());
+                        System.err.println("Listener: " + e2.getMessage());
+                        System.err.println("Visitor: " + e3.getMessage());
+                    }
+                }
+            }
+        }
     }
 
-    private static void Sudoku() throws IOException {
-        // Get input from user.
-        var lexer = new SudokuLexer(getUserInput());
+    private static void Sudoku(String input) {
+        var lexer = new SudokuLexer(CharStreams.fromString(input));
         var tokens = new CommonTokenStream(lexer);
         var parser = new SudokuParser(tokens);
+        parser.removeErrorListeners();
+        lexer.removeErrorListeners();
+        parser.addErrorListener(ThrowingErrorListener.INSTANCE);
 
         ParseTree tree = parser.result();
         var listener = new AntlrSudokuListener();
         ParseTreeWalker.DEFAULT.walk(listener, tree);
 
         listener.print();
+
+        new GenerateOutput(listener.getOut());
     }
 
-    private static void Visitor() throws IOException {
-        var lexer = new ArithmeticLexer(getUserInput());
+    private static void Visitor(String input) {
+        var lexer = new ArithmeticLexer(CharStreams.fromString(input));
         var tokens = new CommonTokenStream(lexer);
         var parser = new ArithmeticParser(tokens);
+        parser.removeErrorListeners();
+        lexer.removeErrorListeners();
+        parser.addErrorListener(ThrowingErrorListener.INSTANCE);
 
         ParseTree tree = parser.program();
         AntlrArithmeticVisitor visitor = new AntlrArithmeticVisitor();
         visitor.visit(tree);
+
+        new GenerateOutput(visitor.getOut());
     }
 
-    private static void Listener() throws IOException {
-        var lexer = new ExpressionsLexer(getUserInput());
+    private static void Listener(String input) {
+        var lexer = new ExpressionsLexer(CharStreams.fromString(input));
         var tokens = new CommonTokenStream(lexer);
         var parser = new ExpressionsParser(tokens);
+        parser.removeErrorListeners();
+        lexer.removeErrorListeners();
+        parser.addErrorListener(ThrowingErrorListener.INSTANCE);
 
         ParseTree tree = parser.expression();
         var listener = new AntlrExpressionsListener(true);
         ParseTreeWalker.DEFAULT.walk(listener, tree);
 
-        // Generate output.txt
-        var directory = new File("./output");
-
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-
-        try (var out = new PrintWriter("./output/output.txt")) {
-            out.println(listener.getResult());
-        }
+        new GenerateOutput(listener.getOut());
     }
 
-    private static CodePointCharStream getUserInput() throws IOException {
-        // Get input from user.
+    private static String getUserInput() throws IOException {
         System.out.println("Please enter the path to the input file below.");
-        return CharStreams.fromString(getFile(new Scanner(System.in).nextLine()));
+        return getFile(new Scanner(System.in).nextLine());
     }
 
     private static String getFile(String path) throws IOException {

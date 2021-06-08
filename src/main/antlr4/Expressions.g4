@@ -1,32 +1,28 @@
 grammar Expressions;
 
 expression
-    :   (NEWLINE)* expr (NEWLINE)*
-    |   (NEWLINE)* statement (NEWLINE)* ((NEWLINE)* NEWLINE+ (NEWLINE)* statement (NEWLINE)*)*
+    :   NEWLINE* expr NEWLINE*
+    |   NEWLINE* statement (NEWLINE+ statement)* NEWLINE*
     ;
 
 expr
     :	expr ('*'|'/') expr         # Mult
     |	expr ('+'|'-') expr         # Add
+    |	'('  expr ')'               # Parenthesis
     |	NUMBER                      # Number
-    |	 '('  expr ')'              # Parenthesis
     ;
 
 statement
-    : 'var' TEXT '=' expr           # Var
-    | TEXT '=' expr                 # Assign
-    | 'print' '(' TEXT ')'          # Print
-    | 'return' (expr | TEXT)        # Return
+    :   'var'? VALUE '=' expr          # Var
+    |   'print' '(' VALUE ')'          # Print
+    |   'return' (expr | VALUE)        # Return
     ;
-
 NEWLINE
-    :   [\r\n]+ ;
+    :   [\r\n] ;
 WHITESPACE
-    :   [\t\r\n ]+ -> skip ;
-STRING
-    :   ["]TEXT["] ;
-TEXT
-    :   (LETTER)(LETTER|DIGIT|[_])* ;
+    :   [\t ] -> skip ;
+VALUE
+    :   (LETTER)(LETTER|DIGIT|'_')* ;
 NUMBER
     :   DIGIT+ ;
 DIGIT

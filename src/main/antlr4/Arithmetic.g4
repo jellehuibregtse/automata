@@ -1,7 +1,7 @@
 grammar Arithmetic;
 
 program
-    :   statement+
+    :   NEWLINE* statement (NEWLINE+ statement)* NEWLINE*
     ;
 
 statement
@@ -9,37 +9,38 @@ statement
     |   assignment
     |   if_statement
     |   while_statement
-    |   WHITESPACE
     ;
 
 if_statement
     :   'if' condition_block ('else if' condition_block)* ('else' code_block)?
     ;
 
+while_statement
+    :   'while' condition_block
+    ;
+
 condition_block
-    : expression code_block
+    :   expression code_block
     ;
 
 code_block
-    : '{' statement* '}'
-    | statement
-    ;
-
-while_statement
-    : 'while' expression code_block
+    :   NEWLINE* '{' (NEWLINE*|program?) '}'
+    |   NEWLINE? statement
     ;
 
 print
-    : 'print' '(' expression ')'
+    :   'print' expression
     ;
 
 assignment
-    : 'var' VALUE ':' TYPE '=' expression
-    | VALUE '=' expression
+    :   'var' VALUE ':' TYPE
+    |   'var' VALUE ':' TYPE '=' expression
+    |   VALUE ('='|'+='|'-=') expression
     ;
 
 expression
     :   expression '**' expression										# PowerExpression
+	|   expression '%' expression										# ModulusExpression
 	|   expression ('*' | '/') expression								# MultiplicationExpression
 	|   expression ('+' | '-') expression								# AdditionExpression
 	|   expression '!'											        # FactorialExpression
@@ -53,6 +54,10 @@ expression
     |   STRING			                                                # StringExpression
     ;
 
+NEWLINE
+    :   ('\r'? '\n')
+    ;
+
 TRUE
     :   'true'
     ;
@@ -62,7 +67,7 @@ FALSE
     ;
 
 STRING
-    :   ["].*?["]
+    :   ((["]~["]*["])|([']~[']*[']))
     ;
 
 TYPE
@@ -70,11 +75,11 @@ TYPE
     ;
 
 VALUE
-    :   [a-zA-Z]+
+    :   ([a-zA-Z])([a-zA-Z]|[0-9]|[_])*
     ;
 
 WHITESPACE
-    :   [ \t\r\n]+ -> skip
+    :   [\t ]+ -> skip
     ;
 
 NUMBER

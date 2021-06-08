@@ -1,29 +1,42 @@
+import lombok.Getter;
+
 public class AntlrSudokuListener extends SudokuBaseListener {
 
     // The size of the sudoku.
     private static final int SUDOKU_SIZE = 9;
     private final int[][] sudokuGrid = new int[SUDOKU_SIZE][SUDOKU_SIZE];
+    @Getter private String out = "";
 
     public void print() {
-        System.out.println("+-----------------+");
+        printLn("+-----------------+");
         for (int i = 0; i < SUDOKU_SIZE; i++) {
-            System.out.print("|");
+            print("|");
             for (int j = 0; j < SUDOKU_SIZE; j++) {
                 if (sudokuGrid[i][j] == 0) {
-                    System.out.print((j + 1) % 3 == 0 ? " " : "  ");
+                    print((j + 1) % 3 == 0 ? " " : "  ");
                 } else {
-                    System.out.print((j + 1) % 3 == 0 ? sudokuGrid[i][j] : sudokuGrid[i][j] + " ");
+                    print((j + 1) % 3 == 0 ? String.valueOf(sudokuGrid[i][j]).replace("\n", "") : String.valueOf(sudokuGrid[i][j]).replace("\n", "") + " ");
                 }
                 if ((j + 1) % 3 == 0 && (j + 1) != SUDOKU_SIZE) {
-                    System.out.print("|");
+                    print("|");
                 }
             }
             if ((i + 1) % 3 == 0 && (i + 1) != SUDOKU_SIZE) {
-                System.out.print("|\n------------------");
+                print("|\n------------------");
             }
-            System.out.print((i + 1) % 3 == 0 && (i + 1) != SUDOKU_SIZE ? "-\n" : "|\n");
+            print((i + 1) % 3 == 0 && (i + 1) != SUDOKU_SIZE ? "-\n" : "|\n");
         }
-        System.out.println("+-----------------+");
+        printLn("+-----------------+");
+    }
+
+    private void print(String message) {
+        out += message;
+        System.out.print(message);
+    }
+
+    private void printLn(String message) {
+        out += message + "\n";
+        System.out.println(message);
     }
 
     @Override

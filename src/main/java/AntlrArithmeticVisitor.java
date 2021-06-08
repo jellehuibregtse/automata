@@ -9,32 +9,45 @@ import java.util.stream.LongStream;
 
 public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeticVisitor.Variable> {
     private final Map<String, Variable> memory = new HashMap<>();
+    @Getter private String out = "";
 
     @Override
     public Variable visitAssignment(ArithmeticParser.AssignmentContext ctx) {
         String id = ctx.VALUE().getText();
-        Variable value = this.visit(ctx.expression());
+        Variable value = null;
+        if (ctx.children.get(1).getText().equals("+=")) {
+            Variable old = memory.get(id);
+            if (old == null) {
+                new TypeMisMatchException("There is no variable with name: " + id).printStackTrace();
+            } else {
+                try {
+                    Variable result = new Variable();
+                    result.concatVariables(this.visit(ctx.expression()), old);
+                    value = result;
+                } catch (TypeMisMatchException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else if (ctx.children.get(1).getText().equals("-=")) {
+            Variable old = memory.get(id);
+            if (old == null) {
+                new TypeMisMatchException("There is no variable with name: " + id).printStackTrace();
+            } else {
+                value = new Variable(old.getNumber() - this.visit(ctx.expression()).getNumber());
+            }
+        } else if (ctx.children.stream().anyMatch(e -> e.getText().equals("="))) {
+            value = this.visit(ctx.expression());
+        }
         return memory.put(id, value);
     }
 
     @Override
     public Variable visitPrint(ArithmeticParser.PrintContext ctx) {
         var variable = this.visit(ctx.expression());
-        var varType = variable.getType();
 
-        switch (varType) {
-            case NUMBER:
-                System.out.println(variable.getNumber());
-                return variable;
-            case STRING:
-                System.out.println(variable.getString());
-                return variable;
-            case BOOL:
-                System.out.println(variable.getBool());
-                return variable;
-            default:
-                return variable;
-        }
+        out += (!out.equals("")? "\n" : "") + variable.getValue();
+        System.out.println(variable.getValue());
+        return variable;
     }
 
     @Override
@@ -44,11 +57,7 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
         Variable value = memory.get(name);
 
         if (value == null) {
-            try {
-                throw new TypeMisMatchException("There is no variable with name: " + name);
-            } catch (TypeMisMatchException e) {
-                e.printStackTrace();
-            }
+            new TypeMisMatchException("There is no variable with name: " + name).printStackTrace();
         }
 
         return value;
@@ -61,7 +70,7 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
 
     @Override
     public Variable visitStringExpression(ArithmeticParser.StringExpressionContext ctx) {
-        return new Variable(ctx.getText());
+        return new Variable(ctx.getText().substring(1, ctx.getText().length()-1));
     }
 
     @Override
@@ -74,6 +83,13 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
         var left = this.visit(ctx.expression(0)).getNumber();
         var right = this.visit(ctx.expression(1)).getNumber();
         return new Variable((int) Math.pow(left, right));
+    }
+
+    @Override
+    public Variable visitModulusExpression(ArithmeticParser.ModulusExpressionContext ctx) {
+        var left = this.visit(ctx.expression(0)).getNumber();
+        var right = this.visit(ctx.expression(1)).getNumber();
+        return new Variable(left % right);
     }
 
     @Override
@@ -184,14 +200,16 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
 
     @Override
     public Variable visitWhile_statement(ArithmeticParser.While_statementContext ctx) {
-        Variable value = this.visit(ctx.expression());
+        ArithmeticParser.Condition_blockContext condition = ctx.condition_block();
+
+        Variable value = this.visit(condition.expression());
 
         while (Boolean.TRUE.equals(value.getBool())) {
             // Visit code block
-            this.visit(ctx.code_block());
+            this.visit(condition.code_block());
 
             // Evaluate expression
-            value = this.visit(ctx.expression());
+            value = this.visit(condition.expression());
         }
         return new Variable();
     }
@@ -232,6 +250,17 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
             this.type = TYPE.STRING;
         }
 
+        public Object getValue() {
+            switch (type) {
+                case STRING:
+                    return this.string;
+                case BOOL:
+                    return this.bool;
+                default:
+                    return this.number;
+            }
+        }
+
         public void setBool(Boolean bool) {
             this.bool = bool;
             this.type = TYPE.BOOL;
@@ -251,22 +280,21 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
             var aType = a.getType();
             var bType = b.getType();
 
-            if (!aType.equals(bType)) {
+            if (!((aType.equals(bType) && a.type == TYPE.NUMBER) || a.type == TYPE.STRING || b.type == TYPE.STRING)) {
                 throw new TypeMisMatchException("Type error: Type mismatch");
             }
 
-            if (a.getString() != null && b.getString() != null) {
-                var x1 = a.getString().substring(1, a.getString().length() - 1);
-                var x2 = b.getString().substring(1, b.getString().length() - 1);
+            if (a.type == TYPE.STRING || b.type == TYPE.STRING) {
+                var x1 = a.getValue().toString();
+                var x2 = b.getValue().toString();
 
-                String result = x1 + x2;
-
+                this.string = x1 + x2;
                 this.type = TYPE.STRING;
-                this.string = result;
             }
-
-            this.number = a.getNumber() + b.getNumber();
-            this.type = TYPE.NUMBER;
+            else {
+                this.number = a.getNumber() + b.getNumber();
+                this.type = TYPE.NUMBER;
+            }
         }
     }
 }

@@ -1,0 +1,12 @@
+var n: number = 0
+while n < 10 {
+    print("n = " + n)
+    n += 1
+}
+
+var a: number = 0
+while a < 100 {
+    a += 1
+    if a % 10 == 0
+        print(a)
+}
