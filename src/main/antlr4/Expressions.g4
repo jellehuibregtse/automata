@@ -13,9 +13,9 @@ expr
     ;
 
 statement
-    : 'var'? VALUE '=' expr          # Var
-    | 'print' '(' VALUE ')'          # Print
-    | 'return' (expr | VALUE)        # Return
+    :   'var'? VALUE '=' expr          # Var
+    |   'print' '(' VALUE ')'          # Print
+    |   'return' (expr | VALUE)        # Return
     ;
 
 NEWLINE

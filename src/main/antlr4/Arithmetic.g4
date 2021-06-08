@@ -17,25 +17,26 @@ if_statement
     ;
 
 condition_block
-    : expression code_block
+    :   expression code_block
     ;
 
 code_block
-    : '{' statement* '}'
-    | statement
+    :   '{' statement* '}'
+    |   statement
     ;
 
 while_statement
-    : 'while' expression code_block
+    :   'while' expression code_block
     ;
 
 print
-    : 'print' '(' expression ')'
+    :   'print' '(' expression ')'
     ;
 
 assignment
-    : 'var' VALUE ':' TYPE '=' expression
-    | VALUE '=' expression
+    :   'var' VALUE ':' TYPE
+    |   'var' VALUE ':' TYPE '=' expression
+    |   VALUE '=' expression
     ;
 
 expression
@@ -62,7 +63,7 @@ FALSE
     ;
 
 STRING
-    :   (('\''(('\\\'')|[^'])*'\'')|('"'('\\"'|[^"])*'"'))
+    :   ((["]('\\"'|~["])*["])|([']('\\\''|~['])*['])) {setText(getText().substring(1, getText().length()-1));}
     ;
 
 TYPE
