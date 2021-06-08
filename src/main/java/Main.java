@@ -1,4 +1,5 @@
 import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -12,14 +13,24 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        Visitor();
+        Sudoku();
+    }
+
+    private static void Sudoku() throws IOException {
+        // Get input from user.
+        var lexer = new SudokuLexer(getUserInput());
+        var tokens = new CommonTokenStream(lexer);
+        var parser = new SudokuParser(tokens);
+
+        ParseTree tree = parser.result();
+        var listener = new AntlrSudokuListener();
+        ParseTreeWalker.DEFAULT.walk(listener, tree);
+
+        listener.print();
     }
 
     private static void Visitor() throws IOException {
-        // Get input from user.
-        System.out.println("Please enter the path to the input file below.");
-        var input = CharStreams.fromString(getFile(new Scanner(System.in).nextLine()));
-        var lexer = new ArithmeticLexer(input);
+        var lexer = new ArithmeticLexer(getUserInput());
         var tokens = new CommonTokenStream(lexer);
         var parser = new ArithmeticParser(tokens);
 
@@ -29,10 +40,7 @@ public class Main {
     }
 
     private static void Listener() throws IOException {
-        // Get input from user.
-        System.out.println("Please enter the path to the input file below.");
-        var input = CharStreams.fromString(getFile(new Scanner(System.in).nextLine()));
-        var lexer = new ExpressionsLexer(input);
+        var lexer = new ExpressionsLexer(getUserInput());
         var tokens = new CommonTokenStream(lexer);
         var parser = new ExpressionsParser(tokens);
 
@@ -50,6 +58,12 @@ public class Main {
         try (var out = new PrintWriter("./output/output.txt")) {
             out.println(listener.getResult());
         }
+    }
+
+    private static CodePointCharStream getUserInput() throws IOException {
+        // Get input from user.
+        System.out.println("Please enter the path to the input file below.");
+        return CharStreams.fromString(getFile(new Scanner(System.in).nextLine()));
     }
 
     private static String getFile(String path) throws IOException {
