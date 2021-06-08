@@ -1,6 +1,9 @@
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
@@ -24,14 +27,14 @@ public class AntlrExpressionsListener extends ExpressionsBaseListener {
     @Override
     public void exitReturn(ExpressionsParser.ReturnContext ctx) {
         if (result == null) {
-            if (ctx.TEXT() != null) {
+            if (ctx.VALUE() != null) {
                 stack.forEach(v -> {
-                    if (v.name.equals(ctx.TEXT().getText())) {
+                    if (v.name.equals(ctx.VALUE().getText())) {
                         result = v.value;
                     }
                 });
                 if (result == null) {
-                    throw new NullPointerException("Cannot resolve '" + ctx.TEXT().getText() + "'");
+                    throw new NullPointerException("Cannot resolve '" + ctx.VALUE().getText() + "'");
                 }
             } else {
                 result = stack.pop().value;
@@ -76,18 +79,23 @@ public class AntlrExpressionsListener extends ExpressionsBaseListener {
 
     @Override
     public void exitVar(ExpressionsParser.VarContext ctx) {
-        if (stack.stream().anyMatch(v -> v.name != null && v.name.equals(ctx.TEXT().getText()))) {
-            throw new IllegalArgumentException("Variable '" + ctx.TEXT().getText() + "' is already defined in the scope.");
+        if (ctx.children.get(0).getText().equals("var")) {
+            if (stack.stream().anyMatch(v -> v.name != null && v.name.equals(ctx.VALUE().getText()))) {
+                throw new IllegalArgumentException("Variable '" + ctx.VALUE().getText() + "' is already defined in the scope.");
+            }
+            stack.push(new Variable(ctx.VALUE().getText(), stack.pop().value));
+        } else {
+            Variable variable = stack.stream().filter(v -> v.name != null && v.name.equals(ctx.VALUE().getText())).findFirst().orElseThrow(() -> new NullPointerException("Cannot resolve '" + ctx.VALUE().getText() + "'"));
+            variable.value = stack.pop().value;
         }
-        stack.push(new Variable(ctx.TEXT().getText(), stack.pop().value));
     }
 
     @Override
     public void exitPrint(ExpressionsParser.PrintContext ctx) {
-        if (ctx.TEXT() != null) {
-            var variable = stack.stream().filter(v -> v.name.equals(ctx.TEXT().getText())).findFirst().orElse(null);
+        if (ctx.VALUE() != null) {
+            var variable = stack.stream().filter(v -> v.name.equals(ctx.VALUE().getText())).findFirst().orElse(null);
             if (variable == null) {
-                throw new NullPointerException("Cannot resolve '" + ctx.TEXT().getText() + "'");
+                throw new NullPointerException("Cannot resolve '" + ctx.VALUE().getText() + "'");
             }
             System.out.println("Out: " + variable.value);
         } else {
@@ -111,6 +119,24 @@ public class AntlrExpressionsListener extends ExpressionsBaseListener {
 
     public int getResult() {
         return result;
+    }
+
+    public void print() {
+        System.out.println(getResult());
+    }
+
+    public void generateOutputFile() {
+        var directory = new File("./output");
+
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
+        try (var out = new PrintWriter("./output/output.txt")) {
+            out.println(getResult());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     private static class Variable {
