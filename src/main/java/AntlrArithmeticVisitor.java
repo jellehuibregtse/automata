@@ -22,21 +22,9 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
     @Override
     public Variable visitPrint(ArithmeticParser.PrintContext ctx) {
         var variable = this.visit(ctx.expression());
-        var varType = variable.getType();
 
-        switch (varType) {
-            case NUMBER:
-                System.out.println(variable.getNumber());
-                return variable;
-            case STRING:
-                System.out.println(variable.getString());
-                return variable;
-            case BOOL:
-                System.out.println(variable.getBool());
-                return variable;
-            default:
-                return variable;
-        }
+        System.out.println(variable.getValue());
+        return variable;
     }
 
     @Override
@@ -232,6 +220,17 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
         public Variable(String string) {
             this.string = string;
             this.type = TYPE.STRING;
+        }
+
+        public Object getValue() {
+            switch (type) {
+                case STRING:
+                    return this.string;
+                case BOOL:
+                    return this.bool;
+                default:
+                    return this.number;
+            }
         }
 
         public void setBool(Boolean bool) {
