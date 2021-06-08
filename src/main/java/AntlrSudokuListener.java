@@ -3,13 +3,7 @@ public class AntlrSudokuListener extends SudokuBaseListener {
     // The size of the sudoku.
     final int SUDOKU_SIZE = 9;
     private final int[][] sudokuGrid = new int[SUDOKU_SIZE][SUDOKU_SIZE];
-
-    /**
-     * Print the entire sudoku grid in a specific format.
-     *
-     * @param grid the sudoku grid that needs to be printed.
-     */
-
+    
     public void print() {
         System.out.println("+-----------------+");
         for (int i = 0; i < SUDOKU_SIZE; i++) {
