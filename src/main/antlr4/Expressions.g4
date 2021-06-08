@@ -1,15 +1,15 @@
 grammar Expressions;
 
 expression
-    :   (NEWLINE)* expr (NEWLINE)*
-    |   (NEWLINE)* statement (NEWLINE)* (NEWLINE+ statement (NEWLINE)*)*
+    :   NEWLINE* expr NEWLINE*
+    |   NEWLINE* statement (NEWLINE+ statement)* NEWLINE*
     ;
 
 expr
     :	expr ('*'|'/') expr         # Mult
     |	expr ('+'|'-') expr         # Add
     |	NUMBER                      # Number
-    |	 '('  expr ')'              # Parenthesis
+    |	'('  expr ')'              # Parenthesis
     ;
 
 statement
@@ -17,11 +17,10 @@ statement
     |   'print' '(' VALUE ')'          # Print
     |   'return' (expr | VALUE)        # Return
     ;
-
 NEWLINE
     :   [\r\n] ;
 WHITESPACE
-    :   [\t\r\n ] -> skip ;
+    :   [\t ] -> skip ;
 VALUE
     :   (LETTER)(LETTER|DIGIT|[_])* ;
 NUMBER

@@ -1,7 +1,7 @@
 grammar Arithmetic;
 
 program
-    :   statement+
+    :   NEWLINE* statement (NEWLINE+ statement)* NEWLINE*
     ;
 
 statement
@@ -9,7 +9,6 @@ statement
     |   assignment
     |   if_statement
     |   while_statement
-    |   WHITESPACE
     ;
 
 if_statement
@@ -21,8 +20,8 @@ condition_block
     ;
 
 code_block
-    :   '{' statement* '}'
-    |   statement
+    :   '{' program '}'
+    |   NEWLINE? statement
     ;
 
 while_statement
@@ -36,7 +35,7 @@ print
 assignment
     :   'var' VALUE ':' TYPE
     |   'var' VALUE ':' TYPE '=' expression
-    |   VALUE '=' expression
+    |   VALUE ('='|'+='|'-=') expression
     ;
 
 expression
@@ -54,6 +53,10 @@ expression
     |   STRING			                                                # StringExpression
     ;
 
+NEWLINE
+    :   [\r\n]
+    ;
+
 TRUE
     :   'true'
     ;
@@ -63,7 +66,7 @@ FALSE
     ;
 
 STRING
-    :   ((["]('\\"'|~["])*["])|([']('\\\''|~['])*[']))
+    :   ((["]~["]*["])|([']~[']*[']))
     ;
 
 TYPE
@@ -75,7 +78,7 @@ VALUE
     ;
 
 WHITESPACE
-    :   [ \t\r\n]+ -> skip
+    :   [\t ]+ -> skip
     ;
 
 NUMBER

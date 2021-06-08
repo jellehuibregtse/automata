@@ -1,6 +1,7 @@
 var a: number = 10
 var b: number
-b = 5
+b = 6
+a -= 1
 
 if (a + b == 15) {
     print("a + b = 15")
@@ -11,5 +12,5 @@ if (a + b == 15) {
 var n: number = 0
 while n < 10 {
     print("n = " + n)
-    n = n + 1
+    n += 1
 }
