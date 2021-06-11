@@ -8,44 +8,46 @@ import java.util.Map;
 import java.util.stream.LongStream;
 
 public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeticVisitor.Variable> {
-    private final Map<String, Variable> memory = new HashMap<>();
-    @Getter private String out = "";
+    private final Map<String, Variable> variables = new HashMap<>();
+    private final Map<String, ArithmeticParser.Function_definitionContext> functions = new HashMap<>();
+    @Getter
+    private String out = "";
 
     @Override
     public Variable visitAssignment(ArithmeticParser.AssignmentContext ctx) {
         String id = ctx.VALUE().getText();
         Variable value = null;
         if (ctx.children.get(1).getText().equals("+=")) {
-            Variable old = memory.get(id);
+            Variable old = variables.get(id);
             if (old == null) {
-                new TypeMisMatchException("There is no variable with name: " + id).printStackTrace();
+                new TypeMismatchException("There is no variable with name: " + id).printStackTrace();
             } else {
                 try {
                     Variable result = new Variable();
                     result.concatVariables(this.visit(ctx.expression()), old);
                     value = result;
-                } catch (TypeMisMatchException e) {
+                } catch (TypeMismatchException e) {
                     e.printStackTrace();
                 }
             }
         } else if (ctx.children.get(1).getText().equals("-=")) {
-            Variable old = memory.get(id);
+            Variable old = variables.get(id);
             if (old == null) {
-                new TypeMisMatchException("There is no variable with name: " + id).printStackTrace();
+                new TypeMismatchException("There is no variable with name: " + id).printStackTrace();
             } else {
                 value = new Variable(old.getNumber() - this.visit(ctx.expression()).getNumber());
             }
         } else if (ctx.children.stream().anyMatch(e -> e.getText().equals("="))) {
             value = this.visit(ctx.expression());
         }
-        return memory.put(id, value);
+        return variables.put(id, value);
     }
 
     @Override
     public Variable visitPrint(ArithmeticParser.PrintContext ctx) {
         var variable = this.visit(ctx.expression());
 
-        out += (!out.equals("")? "\n" : "") + variable.getValue();
+        out += (!out.equals("") ? "\n" : "") + variable.getValue();
         System.out.println(variable.getValue());
         return variable;
     }
@@ -54,10 +56,10 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
     public Variable visitValueExpression(ArithmeticParser.ValueExpressionContext ctx) {
         // Retrieve value of variable from memory.
         String name = ctx.getText();
-        Variable value = memory.get(name);
+        var value = variables.get(name);
 
         if (value == null) {
-            new TypeMisMatchException("There is no variable with name: " + name).printStackTrace();
+            new TypeMismatchException("There is no variable with name: " + name).printStackTrace();
         }
 
         return value;
@@ -70,7 +72,7 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
 
     @Override
     public Variable visitStringExpression(ArithmeticParser.StringExpressionContext ctx) {
-        return new Variable(ctx.getText().substring(1, ctx.getText().length()-1));
+        return new Variable(ctx.getText().substring(1, ctx.getText().length() - 1));
     }
 
     @Override
@@ -115,7 +117,7 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
         if (ctx.getChild(1).getText().equals("+")) {
             try {
                 result.concatVariables(left, right);
-            } catch (TypeMisMatchException e) {
+            } catch (TypeMismatchException e) {
                 e.printStackTrace();
             }
         } else {
@@ -214,14 +216,64 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
         return new Variable();
     }
 
+    @Override
+    public Variable visitFunction_definition(ArithmeticParser.Function_definitionContext ctx) {
+        functions.put(ctx.VALUE().getText(), ctx);
+        return new Variable();
+    }
+
+    @Override
+    public Variable visitFunction_call(ArithmeticParser.Function_callContext ctx) {
+        // Get the function from memory (functions map).
+        var function = functions.get(ctx.VALUE().getText());
+        // Get all the statements from the function.
+        List<ArithmeticParser.StatementContext> statements = function.code_block().statement();
+
+        // Check if the call is correct in number of arguments / parameters.
+        if (function.arguments().getChildCount() != ctx.arguments().getChildCount()) {
+            new ArgumentMismatchException("Number of parameters does not match.").printStackTrace();
+        }
+
+        // Go through all arguments and add them to memory.
+        for (var i = 0; i < function.arguments().getChildCount(); i++) {
+            var variable = this.visit(ctx.arguments().getChild(i));
+            variables.put(function.arguments().getChild(i).getText(), variable);
+        }
+
+        var result = new Variable();
+
+        // Visit all statements in the code block.
+        for (ArithmeticParser.StatementContext statement : statements) {
+            result = this.visit(statement);
+        }
+
+        // Remove all variables in the function's scope.
+        for (var i = 0; i < function.arguments().getChildCount(); i++) {
+            variables.remove(function.arguments().getChild(i).getText());
+        }
+
+        return result;
+    }
+
+    @Override
+    public Variable visitReturn_statement(ArithmeticParser.Return_statementContext ctx) {
+        return this.visit(ctx.expression());
+    }
+
     private enum TYPE {
         NUMBER,
         STRING,
         BOOL
     }
 
-    protected static class TypeMisMatchException extends Exception {
-        public TypeMisMatchException(String errorMessage) {
+    protected static class TypeMismatchException extends Exception {
+        public TypeMismatchException(String errorMessage) {
+            super(errorMessage);
+        }
+    }
+
+    protected static class ArgumentMismatchException extends Exception {
+        public ArgumentMismatchException(String errorMessage) {
             super(errorMessage);
         }
     }
@@ -276,12 +328,12 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
             this.type = TYPE.STRING;
         }
 
-        public void concatVariables(Variable a, Variable b) throws TypeMisMatchException {
+        public void concatVariables(Variable a, Variable b) throws TypeMismatchException {
             var aType = a.getType();
             var bType = b.getType();
 
             if (!((aType.equals(bType) && a.type == TYPE.NUMBER) || a.type == TYPE.STRING || b.type == TYPE.STRING)) {
-                throw new TypeMisMatchException("Type error: Type mismatch");
+                throw new TypeMismatchException("Type error: Type mismatch");
             }
 
             if (a.type == TYPE.STRING || b.type == TYPE.STRING) {
@@ -290,8 +342,7 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
 
                 this.string = x1 + x2;
                 this.type = TYPE.STRING;
-            }
-            else {
+            } else {
                 this.number = a.getNumber() + b.getNumber();
                 this.type = TYPE.NUMBER;
             }
