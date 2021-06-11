@@ -12,6 +12,7 @@ statement
     |   function_definition
     |   function_call
     |   return_statement
+    |   NEWLINE
     ;
 
 function_definition
@@ -43,7 +44,7 @@ condition_block
     ;
 
 code_block
-    :   NEWLINE* '{' (NEWLINE*|program?) '}'
+    :   NEWLINE* '{' (NEWLINE*|statement*) '}'
     |   NEWLINE? statement
     ;
 
