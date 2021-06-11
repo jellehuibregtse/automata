@@ -9,6 +9,25 @@ statement
     |   assignment
     |   if_statement
     |   while_statement
+    |   function_definition
+    |   function_call
+    |   return
+    ;
+
+function_definition
+    :   'func' TYPE VALUE '(' arguments ')' code_block
+    ;
+
+function_call
+    :   VALUE '(' arguments ')'
+    ;
+
+return
+    :   'return' expression
+    ;
+
+arguments
+    :   expression? (',' expression)*
     ;
 
 if_statement
@@ -39,7 +58,8 @@ assignment
     ;
 
 expression
-    :   expression '**' expression										# PowerExpression
+    :   function_call                                                   # FunctionCall
+    |   expression '**' expression										# PowerExpression
 	|   expression '%' expression										# ModulusExpression
 	|   expression ('*' | '/') expression								# MultiplicationExpression
 	|   expression ('+' | '-') expression								# AdditionExpression
