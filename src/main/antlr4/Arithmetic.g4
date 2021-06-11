@@ -11,7 +11,7 @@ statement
     |   while_statement
     |   function_definition
     |   function_call
-    |   return
+    |   return_statement
     ;
 
 function_definition
@@ -22,12 +22,12 @@ function_call
     :   VALUE '(' arguments ')'
     ;
 
-return
-    :   'return' expression
-    ;
-
 arguments
     :   expression? (',' expression)*
+    ;
+
+return_statement
+    :   'return' expression
     ;
 
 if_statement
