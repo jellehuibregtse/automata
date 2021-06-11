@@ -10,8 +10,14 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        while (true) {
+        var run = true;
+
+        while (run) {
             String input = getUserInput();
+
+            if (input.equals("end")) {
+                run = false;
+            }
 
             try {
                 Sudoku(input);
@@ -58,7 +64,7 @@ public class Main {
         parser.addErrorListener(ThrowingErrorListener.INSTANCE);
 
         ParseTree tree = parser.program();
-        AntlrArithmeticVisitor visitor = new AntlrArithmeticVisitor();
+        var visitor = new AntlrArithmeticVisitor();
         visitor.visit(tree);
 
         new GenerateOutput(visitor.getOut());
