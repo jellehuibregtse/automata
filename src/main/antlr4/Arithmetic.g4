@@ -24,7 +24,7 @@ function_call
     ;
 
 arguments
-    :   expression? (',' expression)*
+    :   (expression (',' expression)*)?
     ;
 
 return_statement

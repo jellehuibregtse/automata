@@ -244,7 +244,12 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
 
         // Visit all statements in the code block.
         for (ArithmeticParser.StatementContext statement : statements) {
-            result = this.visit(statement);
+            var s = this.visit(statement);
+            // If the statement is a return statement, set result to statement result, and break the function
+            if (statement.return_statement() != null) {
+                result = s;
+                break;
+            }
         }
 
         // Remove all variables in the function's scope.
