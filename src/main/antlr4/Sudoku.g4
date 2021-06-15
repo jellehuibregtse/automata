@@ -9,12 +9,24 @@ value
     ;
 
 expression
-    :   LEFTPARENTHESIS AND expression+ RIGHTPARENTHESIS
-    |   LEFTPARENTHESIS ITE expression expression expression RIGHTPARENTHESIS
-    |   LEFTPARENTHESIS EQUALS expression expression RIGHTPARENTHESIS
+    :   and
+    |   ite
+    |   equals+
     |   NUMBER
     |   value
     |   variable
+    ;
+
+and
+    :   LEFTPARENTHESIS AND expression+ RIGHTPARENTHESIS
+    ;
+
+ite
+    :   LEFTPARENTHESIS ITE expression expression expression RIGHTPARENTHESIS
+    ;
+
+equals
+    :   LEFTPARENTHESIS EQUALS expression expression RIGHTPARENTHESIS
     ;
 
 declaration
