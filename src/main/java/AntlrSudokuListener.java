@@ -5,7 +5,8 @@ public class AntlrSudokuListener extends SudokuBaseListener {
     // The size of the sudoku.
     private static final int SUDOKU_SIZE = 9;
     private final int[][] sudokuGrid = new int[SUDOKU_SIZE][SUDOKU_SIZE];
-    @Getter private String out = "";
+    @Getter
+    private String out = "";
 
     public void print() {
         printLn("+-----------------+");
@@ -41,10 +42,39 @@ public class AntlrSudokuListener extends SudokuBaseListener {
 
     @Override
     public void exitValue(SudokuParser.ValueContext ctx) {
-        int x = Integer.parseInt(ctx.field().NUMBER(0).getText()) - 1;
-        int y = Integer.parseInt(ctx.field().NUMBER(1).getText()) - 1;
-        var value = Integer.parseInt(ctx.expression().getText());
+        if (ctx.expression().ite() == null) {
+            // Sudoku A.
+            var x = Integer.parseInt(ctx.field().NUMBER(0).getText()) - 1;
+            var y = Integer.parseInt(ctx.field().NUMBER(1).getText()) - 1;
+            var value = Integer.parseInt(ctx.expression().getText());
+
+            sudokuGrid[x][y] = value;
+
+        } else {
+            // Sudoku B.
+            var x = Integer.parseInt(ctx.expression().ite().expression(0).and().expression(0).equals(0).expression(1).getText()) - 1;
+            var y = Integer.parseInt(ctx.expression().ite().expression(0).and().expression(0).equals(1).expression(1).getText()) - 1;
+
+            var value = Integer.parseInt(ctx.expression().ite().expression(1).getText());
+
+            sudokuGrid[x][y] = value;
+
+            handleRecursion(ctx.expression().ite());
+        }
+    }
+
+    private void handleRecursion(SudokuParser.IteContext ite) {
+        if (ite == null) {
+            return;
+        }
+
+        var x = Integer.parseInt(ite.expression(0).and().expression(0).equals(0).expression(1).getText()) - 1;
+        var y = Integer.parseInt(ite.expression(0).and().expression(0).equals(1).expression(1).getText()) - 1;
+
+        var value = Integer.parseInt(ite.expression(1).getText());
 
         sudokuGrid[x][y] = value;
+
+        handleRecursion(ite.expression(2).ite());
     }
 }
