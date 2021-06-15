@@ -5,7 +5,7 @@ result
     ;
 
 value
-    :   LEFTPARENTHESIS FUNCTION field LEFTPARENTHESIS decleration* RIGHTPARENTHESIS INT expression RIGHTPARENTHESIS
+    :   LEFTPARENTHESIS FUNCTION field LEFTPARENTHESIS declaration* RIGHTPARENTHESIS INT expression RIGHTPARENTHESIS
     ;
 
 expression
@@ -16,7 +16,7 @@ expression
     |   value
     ;
 
-decleration
+declaration
     :   LEFTPARENTHESIS variable INT RIGHTPARENTHESIS
     ;
 
