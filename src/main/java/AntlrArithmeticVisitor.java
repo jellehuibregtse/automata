@@ -9,6 +9,7 @@ import java.util.stream.LongStream;
 
 public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeticVisitor.Variable> {
     private final Map<String, Variable> variables = new HashMap<>();
+    private final Map<String, Variable> local_variables = new HashMap<>();
     private final Map<String, ArithmeticParser.Function_definitionContext> functions = new HashMap<>();
     @Getter
     private String out = "";
@@ -18,7 +19,9 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
         String id = ctx.VALUE().getText();
         Variable value = null;
         if (ctx.children.get(1).getText().equals("+=")) {
-            Variable old = variables.get(id);
+            Variable old = local_variables.get(id);
+            if (old == null)
+                old = variables.get(id);
             if (old == null) {
                 new TypeMismatchException("There is no variable with name: " + id).printStackTrace();
             } else {
@@ -31,7 +34,9 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
                 }
             }
         } else if (ctx.children.get(1).getText().equals("-=")) {
-            Variable old = variables.get(id);
+            Variable old = local_variables.get(id);
+            if (old == null)
+                old = variables.get(id);
             if (old == null) {
                 new TypeMismatchException("There is no variable with name: " + id).printStackTrace();
             } else {
@@ -40,6 +45,8 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
         } else if (ctx.children.stream().anyMatch(e -> e.getText().equals("="))) {
             value = this.visit(ctx.expression());
         }
+        if (local_variables.get(id) != null)
+            return local_variables.put(id, value);
         return variables.put(id, value);
     }
 
@@ -56,7 +63,9 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
     public Variable visitValueExpression(ArithmeticParser.ValueExpressionContext ctx) {
         // Retrieve value of variable from memory.
         String name = ctx.getText();
-        var value = variables.get(name);
+        Variable value = local_variables.get(name);
+        if (value == null)
+            value = variables.get(name);
 
         if (value == null) {
             new TypeMismatchException("There is no variable with name: " + name).printStackTrace();
@@ -229,6 +238,8 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
         // Get all the statements from the function.
         List<ArithmeticParser.StatementContext> statements = function.code_block().statement();
 
+        Map<String, Variable> local = new HashMap<>();
+
         // Check if the call is correct in number of arguments / parameters.
         if (function.arguments().getChildCount() != ctx.arguments().getChildCount()) {
             new ArgumentMismatchException("Number of parameters does not match.").printStackTrace();
@@ -237,8 +248,11 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
         // Go through all arguments and add them to memory.
         for (var i = 0; i < function.arguments().getChildCount(); i++) {
             var variable = this.visit(ctx.arguments().getChild(i));
-            variables.put(function.arguments().getChild(i).getText(), variable);
+            // Insert variable at start of list
+            local.put(function.arguments().getChild(i).getText(), variable);
         }
+
+        local_variables.putAll(local);
 
         var result = new Variable();
 
@@ -252,10 +266,7 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
             }
         }
 
-        // Remove all variables in the function's scope.
-        for (var i = 0; i < function.arguments().getChildCount(); i++) {
-            variables.remove(function.arguments().getChild(i).getText());
-        }
+        local_variables.clear();
 
         return result;
     }

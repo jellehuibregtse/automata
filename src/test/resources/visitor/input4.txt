@@ -23,4 +23,4 @@ var c: number = add(20, 3)
 
 check(c, 0)
 check(c, 23)
-check(c, 50)
+check(c, add(25, 25))
