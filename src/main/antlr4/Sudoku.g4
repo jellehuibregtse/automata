@@ -5,7 +5,7 @@ result
     ;
 
 value
-    :   LEFTPARENTHESIS FUNCTION field LEFTPARENTHESIS declaration* RIGHTPARENTHESIS INT expression RIGHTPARENTHESIS
+    :   LEFTPARENTHESIS FUNCTION field LEFTPARENTHESIS declaration* RIGHTPARENTHESIS type expression RIGHTPARENTHESIS
     ;
 
 expression
@@ -30,7 +30,7 @@ equals
     ;
 
 declaration
-    :   LEFTPARENTHESIS variable INT RIGHTPARENTHESIS
+    :   LEFTPARENTHESIS variable type RIGHTPARENTHESIS
     ;
 
 field
@@ -39,6 +39,12 @@ field
 
 variable
     :   'x!' NUMBER
+    ;
+
+type
+    :   INT
+    |   STRING
+    |   BOOL
     ;
 
 EQUALS
@@ -75,6 +81,14 @@ FUNCTION
 
 INT
     :   'Int'
+    ;
+
+STRING
+    :   'String'
+    ;
+
+BOOL
+    :   'Bool'
     ;
 
 LETTER
