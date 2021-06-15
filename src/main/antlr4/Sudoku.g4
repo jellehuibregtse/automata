@@ -5,11 +5,44 @@ result
     ;
 
 value
-    :   LEFTPARENTHESIS FUNCTION field LEFTPARENTHESIS RIGHTPARENTHESIS INT NUMBER RIGHTPARENTHESIS
+    :   LEFTPARENTHESIS FUNCTION field LEFTPARENTHESIS declaration* RIGHTPARENTHESIS INT expression RIGHTPARENTHESIS
+    ;
+
+expression
+    :   and
+    |   ite
+    |   equals+
+    |   NUMBER
+    |   value
+    |   variable
+    ;
+
+and
+    :   LEFTPARENTHESIS AND expression+ RIGHTPARENTHESIS
+    ;
+
+ite
+    :   LEFTPARENTHESIS ITE expression expression expression RIGHTPARENTHESIS
+    ;
+
+equals
+    :   LEFTPARENTHESIS EQUALS expression expression RIGHTPARENTHESIS
+    ;
+
+declaration
+    :   LEFTPARENTHESIS variable INT RIGHTPARENTHESIS
     ;
 
 field
-    :   FIELD NUMBER NUMBER
+    :   (LETTER|NUMBER)+
+    ;
+
+variable
+    :   'x!' NUMBER
+    ;
+
+EQUALS
+    :   '='
     ;
 
 SAT
@@ -28,20 +61,28 @@ MODEL
     :   'model'
     ;
 
-FUNCTION
-    :   'define-fun'
+AND
+    :   'and'
     ;
 
-FIELD
-    :   'a'
+ITE
+    :   'ite'
+    ;
+
+FUNCTION
+    :   'define-fun'
     ;
 
 INT
     :   'Int'
     ;
 
+LETTER
+    :   [a-z]
+    ;
+
 NUMBER
-    :   [1-9]
+    :   [0-9]
     ;
 
 WHITESPACE

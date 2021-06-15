@@ -9,6 +9,26 @@ statement
     |   assignment
     |   if_statement
     |   while_statement
+    |   function_definition
+    |   function_call
+    |   return_statement
+    |   NEWLINE
+    ;
+
+function_definition
+    :   'func' TYPE VALUE '(' arguments ')' code_block
+    ;
+
+function_call
+    :   VALUE '(' arguments ')'
+    ;
+
+arguments
+    :   (expression (',' expression)*)?
+    ;
+
+return_statement
+    :   'return' expression
     ;
 
 if_statement
@@ -24,7 +44,7 @@ condition_block
     ;
 
 code_block
-    :   NEWLINE* '{' (NEWLINE*|program?) '}'
+    :   NEWLINE* '{' (NEWLINE*|statement*) '}'
     |   NEWLINE? statement
     ;
 
@@ -39,7 +59,8 @@ assignment
     ;
 
 expression
-    :   expression '**' expression										# PowerExpression
+    :   function_call                                                   # FunctionCall
+    |   expression '**' expression										# PowerExpression
 	|   expression '%' expression										# ModulusExpression
 	|   expression ('*' | '/') expression								# MultiplicationExpression
 	|   expression ('+' | '-') expression								# AdditionExpression

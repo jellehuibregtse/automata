@@ -1,0 +1,26 @@
+var a: number = 5
+var b: number = 10
+
+func number add(x, y) {
+    print("We add two numbers.")
+    return x + y
+}
+
+func number check(x, y) {
+    print("We compare two numbers")
+    if (x > y) {
+        print("greater")
+    } else if (x < y) {
+        print("smaller")
+    } else {
+        print("equal")
+    }
+}
+
+print(add(a, b))
+
+var c: number = add(20, 3)
+
+check(c, 0)
+check(c, 23)
+check(c, add(25, 25))
