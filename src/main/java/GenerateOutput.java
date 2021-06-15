@@ -12,10 +12,8 @@ public class GenerateOutput {
             directory.mkdirs();
         }
 
-        try {
-            FileWriter myWriter = new FileWriter(path + "/output.txt");
-            myWriter.write(text);
-            myWriter.close();
+        try (var writer = new FileWriter(path + "/output.txt")) {
+            writer.write(text);
         } catch (IOException e) {
             e.printStackTrace();
         }
