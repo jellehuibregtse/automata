@@ -14,6 +14,7 @@ expression
     |   LEFTPARENTHESIS EQUALS expression expression RIGHTPARENTHESIS
     |   NUMBER
     |   value
+    |   variable
     ;
 
 declaration
@@ -69,7 +70,7 @@ LETTER
     ;
 
 NUMBER
-    :   [1-9]
+    :   [0-9]
     ;
 
 WHITESPACE
