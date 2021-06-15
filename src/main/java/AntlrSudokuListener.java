@@ -43,7 +43,7 @@ public class AntlrSudokuListener extends SudokuBaseListener {
     public void exitValue(SudokuParser.ValueContext ctx) {
         int x = Integer.parseInt(ctx.field().NUMBER(0).getText()) - 1;
         int y = Integer.parseInt(ctx.field().NUMBER(1).getText()) - 1;
-        var value = Integer.parseInt(ctx.INT().getText());
+        var value = Integer.parseInt(ctx.NUMBER().getText());
 
         sudokuGrid[x][y] = value;
     }
