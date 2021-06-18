@@ -4,6 +4,7 @@ public class AntlrSudokuListener extends SudokuBaseListener {
 
     // The size of the sudoku.
     private static final int SUDOKU_SIZE = 9;
+    @Getter
     private final int[][] sudokuGrid = new int[SUDOKU_SIZE][SUDOKU_SIZE];
     @Getter
     private String out = "";
