@@ -21,6 +21,14 @@ and
     :   LEFTPARENTHESIS AND expression+ RIGHTPARENTHESIS
     ;
 
+or
+    :   LEFTPARENTHESIS OR expression+ RIGHTPARENTHESIS
+    ;
+
+not
+    :   LEFTPARENTHESIS NOT expression RIGHTPARENTHESIS
+    ;
+
 ite
     :   LEFTPARENTHESIS ITE expression expression expression RIGHTPARENTHESIS
     ;
@@ -69,6 +77,14 @@ MODEL
 
 AND
     :   'and'
+    ;
+
+NOT
+    :   'not'
+    ;
+
+OR
+    :   'or'
     ;
 
 ITE
