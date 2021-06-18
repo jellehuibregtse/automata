@@ -12,14 +12,11 @@ expression
     :   and
     |   or
     |   not
+    |   let
     |   ite
     |   add
     |   subtract
-    |   equals
-    |   less_than
-    |   less_than_equals
-    |   bigger_than
-    |   bigger_than_equals
+    |   comparison+
     |   NUMBER+
     |   value
     |   variable
@@ -40,29 +37,16 @@ not
     :   LEFTPARENTHESIS NOT expression RIGHTPARENTHESIS
     ;
 
-
 ite
     :   LEFTPARENTHESIS ITE expression expression expression RIGHTPARENTHESIS
     ;
 
-equals
-    :   LEFTPARENTHESIS EQUALS expression expression+ RIGHTPARENTHESIS
+let
+    :   LEFTPARENTHESIS LET LEFTPARENTHESIS expression expression expression RIGHTPARENTHESIS RIGHTPARENTHESIS
     ;
 
-less_than
-    :   LEFTPARENTHESIS LESS_THAN expression expression+ RIGHTPARENTHESIS
-    ;
-
-less_than_equals
-    :   LEFTPARENTHESIS LESS_THAN_EQUALS expression expression+ RIGHTPARENTHESIS
-    ;
-
-bigger_than
-    :   LEFTPARENTHESIS BIGGER_THAN expression expression+ RIGHTPARENTHESIS
-    ;
-
-bigger_than_equals
-    :   LEFTPARENTHESIS BIGGER_THAN_EQUALS expression expression+ RIGHTPARENTHESIS
+comparison
+    :   LEFTPARENTHESIS equality expression expression+ RIGHTPARENTHESIS
     ;
 
 add
@@ -83,6 +67,14 @@ field
 
 variable
     :   'x!' NUMBER+
+    ;
+
+equality
+    :   EQUALS
+    |   LESS_THAN
+    |   LESS_THAN_EQUALS
+    |   BIGGER_THAN
+    |   BIGGER_THAN_EQUALS
     ;
 
 type
@@ -145,6 +137,10 @@ NOT
 
 OR
     :   'or'
+    ;
+
+LET
+    :   'let'
     ;
 
 ITE

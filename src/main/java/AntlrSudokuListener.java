@@ -62,8 +62,8 @@ public class AntlrSudokuListener extends Z3BaseListener {
             return;
         }
 
-        var x = Integer.parseInt(ite.expression(0).and().expression(0).equals(0).expression(1).getText()) - 1;
-        var y = Integer.parseInt(ite.expression(0).and().expression(0).equals(1).expression(1).getText()) - 1;
+        var x = Integer.parseInt(ite.expression(0).and().expression(0).comparison(0).expression(1).getText()) - 1;
+        var y = Integer.parseInt(ite.expression(0).and().expression(0).comparison(1).expression(1).getText()) - 1;
 
         var value = Integer.parseInt(ite.expression(1).getText());
 
