@@ -53,13 +53,6 @@ public class AntlrSudokuListener extends Z3BaseListener {
 
         } else {
             // Sudoku B.
-            var x = Integer.parseInt(ctx.expression().ite().expression(0).and().expression(0).equals(0).expression(1).getText()) - 1;
-            var y = Integer.parseInt(ctx.expression().ite().expression(0).and().expression(0).equals(1).expression(1).getText()) - 1;
-
-            var value = Integer.parseInt(ctx.expression().ite().expression(1).getText());
-
-            sudokuGrid[x][y] = value;
-
             handleRecursion(ctx.expression().ite());
         }
     }
