@@ -1,4 +1,4 @@
-grammar Sudoku;
+grammar Z3;
 
 result
     :   SAT LEFTPARENTHESIS MODEL value+ RIGHTPARENTHESIS

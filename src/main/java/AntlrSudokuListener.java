@@ -1,6 +1,6 @@
 import lombok.Getter;
 
-public class AntlrSudokuListener extends SudokuBaseListener {
+public class AntlrSudokuListener extends Z3BaseListener {
 
     // The size of the sudoku.
     private static final int SUDOKU_SIZE = 9;
@@ -42,7 +42,7 @@ public class AntlrSudokuListener extends SudokuBaseListener {
     }
 
     @Override
-    public void exitValue(SudokuParser.ValueContext ctx) {
+    public void exitValue(Z3Parser.ValueContext ctx) {
         if (ctx.expression().ite() == null) {
             // Sudoku A.
             var x = Integer.parseInt(ctx.field().NUMBER(0).getText()) - 1;
@@ -64,7 +64,7 @@ public class AntlrSudokuListener extends SudokuBaseListener {
         }
     }
 
-    private void handleRecursion(SudokuParser.IteContext ite) {
+    private void handleRecursion(Z3Parser.IteContext ite) {
         if (ite == null) {
             return;
         }

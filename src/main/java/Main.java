@@ -21,13 +21,13 @@ public class Main {
             }
 
             try {
-                Sudoku(input);
+                sudoku(input);
             } catch (ParseCancellationException e) {
                 try {
-                    Listener(input);
+                    listener(input);
                 } catch (ParseCancellationException e2) {
                     try {
-                        Visitor(input);
+                        visitor(input);
                     } catch (ParseCancellationException e3) {
                         System.err.println("Invalid input provided");
                         System.err.println("Sudoku: " + e.getMessage());
@@ -39,10 +39,10 @@ public class Main {
         }
     }
 
-    private static void Sudoku(String input) {
-        var lexer = new SudokuLexer(CharStreams.fromString(input));
+    private static void sudoku(String input) {
+        var lexer = new Z3Lexer(CharStreams.fromString(input));
         var tokens = new CommonTokenStream(lexer);
-        var parser = new SudokuParser(tokens);
+        var parser = new Z3Parser(tokens);
         parser.removeErrorListeners();
         lexer.removeErrorListeners();
         parser.addErrorListener(ThrowingErrorListener.INSTANCE);
@@ -56,7 +56,7 @@ public class Main {
         new GenerateOutput(listener.getOut());
     }
 
-    private static void Visitor(String input) {
+    private static void visitor(String input) {
         var lexer = new ArithmeticLexer(CharStreams.fromString(input));
         var tokens = new CommonTokenStream(lexer);
         var parser = new ArithmeticParser(tokens);
@@ -71,7 +71,7 @@ public class Main {
         new GenerateOutput(visitor.getOut());
     }
 
-    private static void Listener(String input) {
+    private static void listener(String input) {
         var lexer = new ExpressionsLexer(CharStreams.fromString(input));
         var tokens = new CommonTokenStream(lexer);
         var parser = new ExpressionsParser(tokens);

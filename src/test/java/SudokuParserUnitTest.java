@@ -46,9 +46,9 @@ class SudokuParserUnitTest {
     @ParameterizedTest
     @MethodSource("testSudoku_usingListener_parameters")
     void testSudoku_usingListener(String path, int[][] expectedOutput) throws IOException {
-        var lexer = new SudokuLexer(CharStreams.fromString(Files.readString(Path.of(path))));
+        var lexer = new Z3Lexer(CharStreams.fromString(Files.readString(Path.of(path))));
         var tokens = new CommonTokenStream(lexer);
-        var parser = new SudokuParser(tokens);
+        var parser = new Z3Parser(tokens);
         parser.removeErrorListeners();
         lexer.removeErrorListeners();
         parser.addErrorListener(ThrowingErrorListener.INSTANCE);
