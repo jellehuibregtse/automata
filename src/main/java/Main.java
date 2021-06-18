@@ -21,7 +21,7 @@ public class Main {
             }
 
             try {
-                sudoku(input);
+                z3(input);
             } catch (ParseCancellationException e) {
                 try {
                     listener(input);
@@ -30,7 +30,7 @@ public class Main {
                         visitor(input);
                     } catch (ParseCancellationException e3) {
                         System.err.println("Invalid input provided");
-                        System.err.println("Sudoku: " + e.getMessage());
+                        System.err.println("Z3: " + e.getMessage());
                         System.err.println("Listener: " + e2.getMessage());
                         System.err.println("Visitor: " + e3.getMessage());
                     }
@@ -39,7 +39,7 @@ public class Main {
         }
     }
 
-    private static void sudoku(String input) {
+    private static void z3(String input) {
         var lexer = new Z3Lexer(CharStreams.fromString(input));
         var tokens = new CommonTokenStream(lexer);
         var parser = new Z3Parser(tokens);

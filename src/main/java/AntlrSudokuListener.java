@@ -17,7 +17,8 @@ public class AntlrSudokuListener extends Z3BaseListener {
                 if (sudokuGrid[i][j] == 0) {
                     print((j + 1) % 3 == 0 ? " " : "  ");
                 } else {
-                    print((j + 1) % 3 == 0 ? String.valueOf(sudokuGrid[i][j]).replace("\n", "") : String.valueOf(sudokuGrid[i][j]).replace("\n", "") + " ");
+                    print((j + 1) % 3 == 0 ? String.valueOf(sudokuGrid[i][j]).replace("\n", "") : String.valueOf(
+                            sudokuGrid[i][j]).replace("\n", "") + " ");
                 }
                 if ((j + 1) % 3 == 0 && (j + 1) != SUDOKU_SIZE) {
                     print("|");
@@ -43,7 +44,10 @@ public class AntlrSudokuListener extends Z3BaseListener {
 
     @Override
     public void exitValue(Z3Parser.ValueContext ctx) {
-        if (ctx.expression().ite() == null) {
+        if (ctx.getText().contains("State")) {
+            // NFA
+            System.out.println("NFA");
+        } else if (ctx.expression().ite() == null) {
             // Sudoku A.
             var x = Integer.parseInt(ctx.field().NUMBER(0).getText()) - 1;
             var y = Integer.parseInt(ctx.field().NUMBER(1).getText()) - 1;
