@@ -12,7 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
-class SudokuParserUnitTest {
+class SudokuParserUnitTests {
 
     private static Stream<Arguments> testSudoku_usingListener_parameters() {
         return Stream.of(

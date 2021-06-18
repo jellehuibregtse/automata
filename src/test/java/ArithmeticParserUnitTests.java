@@ -11,7 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
-class ArithmeticParserUnitTest {
+class ArithmeticParserUnitTests {
 
     private static Stream<Arguments> testArithmetic_usingVisitor_parameters() {
         return Stream.of(
