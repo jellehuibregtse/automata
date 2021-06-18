@@ -23,6 +23,11 @@ expression
     |   STR
     |   TRUE
     |   FALSE
+    |   other
+    ;
+
+other
+    :   LEFTPARENTHESIS field expression+ RIGHTPARENTHESIS
     ;
 
 and
@@ -42,7 +47,7 @@ ite
     ;
 
 let
-    :   LEFTPARENTHESIS LET LEFTPARENTHESIS expression expression expression RIGHTPARENTHESIS RIGHTPARENTHESIS
+    :   LEFTPARENTHESIS LET LEFTPARENTHESIS LEFTPARENTHESIS variable expression+ RIGHTPARENTHESIS RIGHTPARENTHESIS expression* RIGHTPARENTHESIS
     ;
 
 comparison
@@ -66,7 +71,7 @@ field
     ;
 
 variable
-    :   'x!' NUMBER+
+    :   LETTER '!' NUMBER+
     ;
 
 equality
