@@ -12,9 +12,12 @@ expression
     :   and
     |   ite
     |   equals+
-    |   NUMBER
+    |   NUMBER+
     |   value
     |   variable
+    |   STR
+    |   TRUE
+    |   FALSE
     ;
 
 and
@@ -46,7 +49,7 @@ field
     ;
 
 variable
-    :   'x!' NUMBER
+    :   'x!' NUMBER+
     ;
 
 type
@@ -105,6 +108,18 @@ STRING
 
 BOOL
     :   'Bool'
+    ;
+
+TRUE
+    :   'true'
+    ;
+
+FALSE
+    :   'false'
+    ;
+
+STR
+    :   ((["]~["]*["])|([']~[']*[']))
     ;
 
 LETTER
