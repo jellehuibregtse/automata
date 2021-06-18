@@ -108,7 +108,7 @@ BOOL
     ;
 
 LETTER
-    :   [a-z]
+    :   [A-Za-z]
     ;
 
 NUMBER
