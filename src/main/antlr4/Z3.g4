@@ -10,8 +10,16 @@ value
 
 expression
     :   and
+    |   or
+    |   not
     |   ite
-    |   equals+
+    |   add
+    |   subtract
+    |   equals
+    |   less_than
+    |   less_than_equals
+    |   bigger_than
+    |   bigger_than_equals
     |   NUMBER+
     |   value
     |   variable
@@ -32,12 +40,37 @@ not
     :   LEFTPARENTHESIS NOT expression RIGHTPARENTHESIS
     ;
 
+
 ite
     :   LEFTPARENTHESIS ITE expression expression expression RIGHTPARENTHESIS
     ;
 
 equals
-    :   LEFTPARENTHESIS EQUALS expression expression RIGHTPARENTHESIS
+    :   LEFTPARENTHESIS EQUALS expression expression+ RIGHTPARENTHESIS
+    ;
+
+less_than
+    :   LEFTPARENTHESIS LESS_THAN expression expression+ RIGHTPARENTHESIS
+    ;
+
+less_than_equals
+    :   LEFTPARENTHESIS LESS_THAN_EQUALS expression expression+ RIGHTPARENTHESIS
+    ;
+
+bigger_than
+    :   LEFTPARENTHESIS BIGGER_THAN expression expression+ RIGHTPARENTHESIS
+    ;
+
+bigger_than_equals
+    :   LEFTPARENTHESIS BIGGER_THAN_EQUALS expression expression+ RIGHTPARENTHESIS
+    ;
+
+add
+    :   LEFTPARENTHESIS PLUS expression expression+ RIGHTPARENTHESIS
+    ;
+
+subtract
+    :   LEFTPARENTHESIS MINUS expression+ RIGHTPARENTHESIS
     ;
 
 declaration
@@ -60,6 +93,30 @@ type
 
 EQUALS
     :   '='
+    ;
+
+LESS_THAN
+    :   '<'
+    ;
+
+LESS_THAN_EQUALS
+    :   '<='
+    ;
+
+BIGGER_THAN
+    :   '>'
+    ;
+
+BIGGER_THAN_EQUALS
+    :   '>='
+    ;
+
+PLUS
+    :   '+'
+    ;
+
+MINUS
+    :   '-'
     ;
 
 SAT
