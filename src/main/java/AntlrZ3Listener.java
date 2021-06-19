@@ -7,6 +7,7 @@ import java.util.List;
 
 public class AntlrZ3Listener extends Z3BaseListener {
     List<Variable> variables = new ArrayList<>();
+    Function currentFunction;
 
     // Dot language
     private static final String EMPTY_CIRCLE = "\"\" [shape=none]";
@@ -59,8 +60,7 @@ public class AntlrZ3Listener extends Z3BaseListener {
             }
             printLn("└───────┴───────┴───────┘");
         } else {
-            // TODO: print nfa solution
-            printLn("No solution found");
+            printLn(out);
         }
     }
 
@@ -79,6 +79,11 @@ public class AntlrZ3Listener extends Z3BaseListener {
         for (var i = 0; i < ctx.declaration().size(); i++) {
             variables.add(new Variable(ctx.declaration(i).variable().getText(), ctx.declaration(i).type(), null));
         }
+
+        currentFunction = new Function(ctx.field().getText(),
+                                   (ArrayList<Variable>) variables,
+                                   ctx.type(),
+                                   ctx.expression());
 
         if (!ctx.field().LETTER().isEmpty() && ctx.field().LETTER(0).getText().equals("a")) {
             // Sudoku A.
@@ -99,6 +104,20 @@ public class AntlrZ3Listener extends Z3BaseListener {
         } else {
             // NFA
             System.out.println("NFA");
+            System.out.println("Variables:");
+            for (int i = 0; i < variables.size(); i++) {
+                System.out.println(variables.get(i).toString());
+            }
+            System.out.println("Expression:");
+            var t = ctx.expression().getText();
+            System.out.println(t);
+            System.out.println("y: " + (ctx.expression().ite() == null));
+
+            System.out.println(handleExpression(ctx.expression()));
+
+            System.out.println("Function: " + currentFunction.toString());
+
+            System.out.println("-----------------");
         }
 
         variables.clear();
@@ -120,7 +139,8 @@ public class AntlrZ3Listener extends Z3BaseListener {
         } else if (expression.variable() != null) {
             return handleVariable(expression.variable());
         }
-        throw new NullPointerException("Expression not handled");
+        //throw new NullPointerException("Expression not handled");
+        return null;
     }
 
     private Object handleVariable(Z3Parser.VariableContext variable) {
@@ -129,7 +149,8 @@ public class AntlrZ3Listener extends Z3BaseListener {
                 return v.getValue();
             }
         }
-        throw new NullPointerException("No such variable");
+        //throw new NullPointerException("No such variable");
+        return null;
     }
 
     private boolean handleComparison(Z3Parser.ComparisonContext comparison) {
@@ -176,5 +197,28 @@ public class AntlrZ3Listener extends Z3BaseListener {
         private final String name;
         private final Z3Parser.TypeContext type;
         private Object value;
+
+        @Override
+        public String toString() {
+            return String.format("Name: %s, type: %s, value: %s",
+                                 name,
+                                 type.getText(),
+                                 value == null ? "null" : value.toString());
+        }
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    private static class Function {
+        private final String name;
+        private final ArrayList<Variable> variables;
+        private final Z3Parser.TypeContext type;
+        private final Z3Parser.ExpressionContext expression;
+
+        @Override
+        public String toString() {
+            return String.format("Name: %s, type: %s, expression: %s", name, type.getText(), expression.getText());
+        }
     }
 }
