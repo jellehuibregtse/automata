@@ -63,7 +63,7 @@ public class AntlrZ3Listener extends Z3BaseListener {
             var value = (int) handleExpression(ctx.expression());
 
             sudokuGrid[x][y] = value;
-        } else if (ctx.expression().ite() != null) {
+        } else if (ctx.field().getText().equals("b")) {
             // Sudoku B.
             for (var x = 0; x < SUDOKU_SIZE; x++) {
                 for (var y = 0; y < SUDOKU_SIZE; y++) {
