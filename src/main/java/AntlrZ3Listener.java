@@ -10,15 +10,16 @@ public class AntlrZ3Listener extends Z3BaseListener {
     Function currentFunction;
 
     // Dot language
-    private static final String EMPTY_CIRCLE = "\"\" [shape=none]";
+    private static final String EMPTY_CIRCLE = "\t\"\" [shape=none]";
 
     private static String getCircle(String name, boolean isFinalState) {
-        return "\"" + name + "\" [shape=" + (isFinalState ? "double" : "") + "circle]";
+        return "\t\"" + name + "\" [shape=" + (isFinalState ? "double" : "") + "circle]";
     }
 
     private static String getTransition(String a, String b, String label) {
-        return "\"" + a + "\" -> \"" + b + "\" [label=\"" + label + "\"]";
+        return "\t\"" + a + "\" -> \"" + b + "\"" + (label == null ? "" : " [label=" + label + "]");
     }
+
 
     // The size of the sudoku.
     private static final int SUDOKU_SIZE = 9;
@@ -26,6 +27,7 @@ public class AntlrZ3Listener extends Z3BaseListener {
     private final int[][] sudokuGrid = new int[SUDOKU_SIZE][SUDOKU_SIZE];
     @Getter
     private String out = "";
+
 
     public boolean sudokuIsEmpty() {
         int values = 0;
@@ -81,9 +83,9 @@ public class AntlrZ3Listener extends Z3BaseListener {
         }
 
         currentFunction = new Function(ctx.field().getText(),
-                                   (ArrayList<Variable>) variables,
-                                   ctx.type(),
-                                   ctx.expression());
+                                       (ArrayList<Variable>) variables,
+                                       ctx.type(),
+                                       ctx.expression());
 
         if (!ctx.field().LETTER().isEmpty() && ctx.field().LETTER(0).getText().equals("a")) {
             // Sudoku A.
@@ -103,24 +105,51 @@ public class AntlrZ3Listener extends Z3BaseListener {
             }
         } else {
             // NFA
-            System.out.println("NFA");
-            System.out.println("Variables:");
-            for (int i = 0; i < variables.size(); i++) {
-                System.out.println(variables.get(i).toString());
+            if (out.isEmpty()) {
+                printLn("digraph automaton {");
+                printLn("\trankdir=LR;");
+                printLn("");
+                printLn(EMPTY_CIRCLE);
+                for (int i = 0; i <= 7; i++) {
+                    printLn(getCircle("100" + i, i == 1 || i == 7));
+                }
             }
-            System.out.println("Expression:");
-            var t = ctx.expression().getText();
-            System.out.println(t);
-            System.out.println("y: " + (ctx.expression().ite() == null));
 
-            System.out.println(handleExpression(ctx.expression()));
+            if (currentFunction.getName().equals("FinalStates")) {
+                var result = (String) handleExpression(ctx.expression());
+                assert result != null;
+                var states = result.split(":");
+                System.out.println("TODO HANDLE FINAL STATES: " + states[0] + ", " + states[1]);
+            }
 
-            System.out.println("Function: " + currentFunction.toString());
+            if (currentFunction.getName().equals("InitState")) {
+                var result = handleExpression(ctx.expression());
+                assert result != null;
+                var initState = result.toString();
+                System.out.println(getTransition("", initState, null));
+            }
 
-            System.out.println("-----------------");
+            if (currentFunction.getName().equals("A")) {
+                getTransitionFromIte(ctx.expression().ite());
+            }
         }
 
         variables.clear();
+    }
+
+    private void getTransitionFromIte(Z3Parser.IteContext ite) {
+        if (ite == null) {
+            return;
+        }
+
+        var and = ite.expression(0).and();
+        var a = and.expression(0).comparison().expression(1).number();
+        var b = and.expression(1).comparison().expression(1).number();
+        var c = and.expression(2).comparison().expression(1);
+        // For some reason only getting last char of number, there for the "100" +.
+        printLn(getTransition("100" + a.getText(), "100" + b.getText(), c.getText()));
+
+        getTransitionFromIte(ite.expression(2).ite());
     }
 
     private Object handleExpression(Z3Parser.ExpressionContext expression) {
@@ -139,7 +168,7 @@ public class AntlrZ3Listener extends Z3BaseListener {
         } else if (expression.variable() != null) {
             return handleVariable(expression.variable());
         }
-        //throw new NullPointerException("Expression not handled");
+
         return null;
     }
 
@@ -149,7 +178,7 @@ public class AntlrZ3Listener extends Z3BaseListener {
                 return v.getValue();
             }
         }
-        //throw new NullPointerException("No such variable");
+
         return null;
     }
 
