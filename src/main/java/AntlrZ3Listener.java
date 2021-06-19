@@ -8,6 +8,17 @@ import java.util.List;
 public class AntlrZ3Listener extends Z3BaseListener {
     List<Variable> variables = new ArrayList<>();
 
+    // Dot language
+    private static final String EMPTY_CIRCLE = "\"\" [shape=none]";
+
+    private static String getCircle(String name, boolean isFinalState) {
+        return "\"" + name + "\" [shape=" + (isFinalState ? "double" : "") + "circle]";
+    }
+
+    private static String getTransition(String a, String b, String label) {
+        return "\"" + a + "\" -> \"" + b + "\" [label=\"" + label + "\"]";
+    }
+
     // The size of the sudoku.
     private static final int SUDOKU_SIZE = 9;
     @Getter
@@ -36,7 +47,7 @@ public class AntlrZ3Listener extends Z3BaseListener {
                     if (j % Math.sqrt(SUDOKU_SIZE) == 0) {
                         print(" ");
                     }
-                    print(sudokuGrid[i][j] == 0? "  " : sudokuGrid[i][j] + " ");
+                    print(sudokuGrid[i][j] == 0 ? "  " : sudokuGrid[i][j] + " ");
                     if ((j + 1) % Math.sqrt(SUDOKU_SIZE) == 0) {
                         print("│");
                     }
@@ -69,7 +80,7 @@ public class AntlrZ3Listener extends Z3BaseListener {
             variables.add(new Variable(ctx.declaration(i).variable().getText(), ctx.declaration(i).type(), null));
         }
 
-        if (ctx.field().LETTER().size() > 0 && ctx.field().LETTER(0).getText().equals("a")) {
+        if (!ctx.field().LETTER().isEmpty() && ctx.field().LETTER(0).getText().equals("a")) {
             // Sudoku A.
             var x = Integer.parseInt(ctx.field().NUMBER(0).getText()) - 1;
             var y = Integer.parseInt(ctx.field().NUMBER(1).getText()) - 1;
