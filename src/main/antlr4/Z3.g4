@@ -10,11 +10,6 @@ value
 
 expression
     :   and
-    |   str_len
-    |   str_substr
-    |   str_at
-    |   str_concatation
-    |   int_to_str
     |   or
     |   not
     |   let
@@ -22,6 +17,7 @@ expression
     |   add
     |   subtract
     |   comparison+
+    |   str_method
     |   NUMBER+
     |   value
     |   variable
@@ -73,6 +69,14 @@ subtract
 
 declaration
     :   LEFTPARENTHESIS variable type RIGHTPARENTHESIS
+    ;
+
+str_method
+    :   str_len
+    |   str_substr
+    |   str_at
+    |   str_concatation
+    |   int_to_str
     ;
 
 str_len
