@@ -4,7 +4,6 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class AntlrZ3Listener extends Z3BaseListener {
     List<Variable> variables = new ArrayList<>();
@@ -64,11 +63,11 @@ public class AntlrZ3Listener extends Z3BaseListener {
             sudokuGrid[x][y] = value;
         } else if (ctx.expression().ite() != null) {
             // Sudoku B.
-            for (int x = 1; x < 10; x++) {
-                for (int y = 1; y < 10; y++) {
-                    variables.get(0).setValue(x);
-                    variables.get(1).setValue(y);
-                    sudokuGrid[x - 1][y - 1] = (int) handleExpression(ctx.expression());
+            for (int x = 0; x < SUDOKU_SIZE; x++) {
+                for (int y = 0; y < SUDOKU_SIZE; y++) {
+                    variables.get(0).setValue(x + 1);
+                    variables.get(1).setValue(y + 1);
+                    sudokuGrid[x][y] = (int) handleExpression(ctx.expression());
                 }
             }
         } else {
@@ -100,7 +99,7 @@ public class AntlrZ3Listener extends Z3BaseListener {
 
     private Object handleVariable(Z3Parser.VariableContext variable) {
         for (Variable var : variables) {
-            if (var.getName().equals(variable.getText())) {
+            if (var.getName().equals(variable.getText()) && var.getValue() != null) {
                 return var.getValue();
             }
         }
