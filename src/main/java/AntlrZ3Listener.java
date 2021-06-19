@@ -17,9 +17,9 @@ public class AntlrZ3Listener extends Z3BaseListener {
 
     public void print() {
         printLn("+-----------------+");
-        for (int i = 0; i < SUDOKU_SIZE; i++) {
+        for (var i = 0; i < SUDOKU_SIZE; i++) {
             print("|");
-            for (int j = 0; j < SUDOKU_SIZE; j++) {
+            for (var j = 0; j < SUDOKU_SIZE; j++) {
                 if (sudokuGrid[i][j] == 0) {
                     print((j + 1) % 3 == 0 ? " " : "  ");
                 } else {
@@ -50,11 +50,11 @@ public class AntlrZ3Listener extends Z3BaseListener {
 
     @Override
     public void exitValue(Z3Parser.ValueContext ctx) {
-        for (int i = 0; i < ctx.declaration().size(); i++) {
+        for (var i = 0; i < ctx.declaration().size(); i++) {
             variables.add(new Variable(ctx.declaration(i).variable().getText(), ctx.declaration(i).type(), null));
         }
 
-        if (ctx.declaration().size() == 0 && ctx.type().INT() != null && ctx.field().NUMBER().size() == 2) {
+        if (ctx.declaration().isEmpty() && ctx.type().INT() != null && ctx.field().NUMBER().size() == 2) {
             // Sudoku A.
             var x = Integer.parseInt(ctx.field().NUMBER(0).getText()) - 1;
             var y = Integer.parseInt(ctx.field().NUMBER(1).getText()) - 1;
@@ -63,8 +63,8 @@ public class AntlrZ3Listener extends Z3BaseListener {
             sudokuGrid[x][y] = value;
         } else if (ctx.expression().ite() != null) {
             // Sudoku B.
-            for (int x = 0; x < SUDOKU_SIZE; x++) {
-                for (int y = 0; y < SUDOKU_SIZE; y++) {
+            for (var x = 0; x < SUDOKU_SIZE; x++) {
+                for (var y = 0; y < SUDOKU_SIZE; y++) {
                     variables.get(0).setValue(x + 1);
                     variables.get(1).setValue(y + 1);
                     sudokuGrid[x][y] = (int) handleExpression(ctx.expression());
@@ -98,9 +98,9 @@ public class AntlrZ3Listener extends Z3BaseListener {
     }
 
     private Object handleVariable(Z3Parser.VariableContext variable) {
-        for (Variable var : variables) {
-            if (var.getName().equals(variable.getText()) && var.getValue() != null) {
-                return var.getValue();
+        for (Variable v : variables) {
+            if (v.getName().equals(variable.getText()) && v.getValue() != null) {
+                return v.getValue();
             }
         }
         throw new NullPointerException("No such variable");
@@ -109,13 +109,13 @@ public class AntlrZ3Listener extends Z3BaseListener {
     private boolean handleComparison(Z3Parser.ComparisonContext comparison) {
         if (comparison.equality().EQUALS() != null) {
             Object first = handleExpression(comparison.expression(0));
-            for (int i = 1; i < comparison.expression().size(); i++) {
+            for (var i = 1; i < comparison.expression().size(); i++) {
                 var value = handleExpression(comparison.expression(i));
                 if (first instanceof Boolean && (!(value instanceof Boolean) || (boolean) first != (boolean) value)) {
                     return false;
                 } else if (first instanceof Integer && (!(value instanceof Integer) || !(first).equals(value))) {
                     return false;
-                } else if (first instanceof String && (!(value instanceof String) || !( first).equals(value))) {
+                } else if (first instanceof String && (!(value instanceof String) || !(first).equals(value))) {
                     return false;
                 }
             }
@@ -125,7 +125,7 @@ public class AntlrZ3Listener extends Z3BaseListener {
     }
 
     private boolean handleAnd(Z3Parser.AndContext and) {
-        for (int i = 0; i < and.expression().size(); i++) {
+        for (var i = 0; i < and.expression().size(); i++) {
             Object result = handleExpression(and.expression(i));
             if (!(result instanceof Boolean) || !(boolean) result) {
                 return false;
