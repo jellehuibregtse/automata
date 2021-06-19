@@ -54,7 +54,7 @@ class SudokuParserUnitTests {
         parser.addErrorListener(ThrowingErrorListener.INSTANCE);
 
         ParseTree tree = parser.result();
-        var listener = new AntlrSudokuListener();
+        var listener = new AntlrZ3Listener();
         ParseTreeWalker.DEFAULT.walk(listener, tree);
 
         Assertions.assertArrayEquals(expectedOutput, listener.getSudokuGrid());

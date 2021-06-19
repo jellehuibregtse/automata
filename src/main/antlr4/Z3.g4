@@ -16,19 +16,23 @@ expression
     |   ite
     |   add
     |   subtract
-    |   comparison+
+    |   comparison
     |   str_method
-    |   NUMBER+
+    |   other
     |   value
     |   variable
+    |   bool
+    |   NUMBER
     |   STR
-    |   TRUE
-    |   FALSE
-    |   other
     ;
 
 other
     :   LEFTPARENTHESIS field expression+ RIGHTPARENTHESIS
+    ;
+
+bool
+    :   TRUE
+    |   FALSE
     ;
 
 and
