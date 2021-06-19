@@ -22,7 +22,7 @@ expression
     |   value
     |   variable
     |   bool
-    |   NUMBER
+    |   number
     |   STR
     ;
 
@@ -101,6 +101,10 @@ str_concatation
 
 int_to_str
     :   LEFTPARENTHESIS 'int.to.str' expression+ RIGHTPARENTHESIS
+    ;
+
+number
+    :   NUMBER+
     ;
 
 field

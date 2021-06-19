@@ -1,9 +1,11 @@
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AntlrZ3Listener extends Z3BaseListener {
     List<Variable> variables = new ArrayList<>();
@@ -85,8 +87,8 @@ public class AntlrZ3Listener extends Z3BaseListener {
             return handleIte(expression.ite());
         } else if (expression.and() != null) {
             return handleAnd(expression.and());
-        } else if (expression.NUMBER() != null) {
-            return Integer.parseInt(expression.NUMBER().getText());
+        } else if (expression.number() != null) {
+            return Integer.parseInt(expression.number().getText());
         } else if (expression.STR() != null) {
             return expression.STR().getText().substring(1, expression.STR().getText().length() - 1);
         } else if (expression.bool() != null) {
