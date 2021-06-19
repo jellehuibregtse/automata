@@ -1,11 +1,9 @@
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class AntlrZ3Listener extends Z3BaseListener {
     List<Variable> variables = new ArrayList<>();
@@ -17,27 +15,42 @@ public class AntlrZ3Listener extends Z3BaseListener {
     @Getter
     private String out = "";
 
-    public void print() {
-        printLn("+-----------------+");
+    public boolean sudokuIsEmpty() {
+        int values = 0;
         for (var i = 0; i < SUDOKU_SIZE; i++) {
-            print("|");
             for (var j = 0; j < SUDOKU_SIZE; j++) {
-                if (sudokuGrid[i][j] == 0) {
-                    print((j + 1) % 3 == 0 ? " " : "  ");
-                } else {
-                    print((j + 1) % 3 == 0 ? String.valueOf(sudokuGrid[i][j]).replace("\n", "") : String.valueOf(
-                            sudokuGrid[i][j]).replace("\n", "") + " ");
-                }
-                if ((j + 1) % 3 == 0 && (j + 1) != SUDOKU_SIZE) {
-                    print("|");
+                if (sudokuGrid[i][j] != 0) {
+                    values++;
                 }
             }
-            if ((i + 1) % 3 == 0 && (i + 1) != SUDOKU_SIZE) {
-                print("|\n------------------");
-            }
-            print((i + 1) % 3 == 0 && (i + 1) != SUDOKU_SIZE ? "-\n" : "|\n");
         }
-        printLn("+-----------------+");
+        return values == 0;
+    }
+
+    public void print() {
+        if (!sudokuIsEmpty()) {
+            printLn("┌───────┬───────┬───────┐");
+            for (var i = 0; i < SUDOKU_SIZE; i++) {
+                print("│");
+                for (var j = 0; j < SUDOKU_SIZE; j++) {
+                    if (j % Math.sqrt(SUDOKU_SIZE) == 0) {
+                        print(" ");
+                    }
+                    print(sudokuGrid[i][j] == 0? "  " : sudokuGrid[i][j] + " ");
+                    if ((j + 1) % Math.sqrt(SUDOKU_SIZE) == 0) {
+                        print("│");
+                    }
+                }
+                if ((i - 2) % 3 == 0 && (i + 1) != SUDOKU_SIZE) {
+                    print("\n├───────┼───────┼───────┤");
+                }
+                print("\n");
+            }
+            printLn("└───────┴───────┴───────┘");
+        } else {
+            // TODO: print nfa solution
+            printLn("No solution found");
+        }
     }
 
     private void print(String message) {
@@ -56,7 +69,7 @@ public class AntlrZ3Listener extends Z3BaseListener {
             variables.add(new Variable(ctx.declaration(i).variable().getText(), ctx.declaration(i).type(), null));
         }
 
-        if (ctx.declaration().isEmpty() && ctx.type().INT() != null && ctx.field().NUMBER().size() == 2) {
+        if (ctx.field().LETTER().size() > 0 && ctx.field().LETTER(0).getText().equals("a")) {
             // Sudoku A.
             var x = Integer.parseInt(ctx.field().NUMBER(0).getText()) - 1;
             var y = Integer.parseInt(ctx.field().NUMBER(1).getText()) - 1;
