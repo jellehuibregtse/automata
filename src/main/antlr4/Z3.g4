@@ -10,6 +10,11 @@ value
 
 expression
     :   and
+    |   str_len
+    |   str_substr
+    |   str_at
+    |   str_concatation
+    |   int_to_str
     |   or
     |   not
     |   let
@@ -47,7 +52,11 @@ ite
     ;
 
 let
-    :   LEFTPARENTHESIS LET LEFTPARENTHESIS LEFTPARENTHESIS variable expression+ RIGHTPARENTHESIS RIGHTPARENTHESIS expression* RIGHTPARENTHESIS
+    :   LEFTPARENTHESIS LET LEFTPARENTHESIS let_rule+ RIGHTPARENTHESIS expression* RIGHTPARENTHESIS
+    ;
+
+let_rule
+    :   LEFTPARENTHESIS variable expression+ RIGHTPARENTHESIS
     ;
 
 comparison
@@ -66,12 +75,33 @@ declaration
     :   LEFTPARENTHESIS variable type RIGHTPARENTHESIS
     ;
 
+str_len
+    :   LEFTPARENTHESIS 'str.len' variable RIGHTPARENTHESIS
+    ;
+
+str_substr
+    :   LEFTPARENTHESIS 'str.substr' variable expression expression RIGHTPARENTHESIS
+    ;
+
+str_at
+    :   LEFTPARENTHESIS 'str.at' variable expression RIGHTPARENTHESIS
+    ;
+
+str_concatation
+    :   LEFTPARENTHESIS 'str.++' expression+ RIGHTPARENTHESIS
+    ;
+
+int_to_str
+    :   LEFTPARENTHESIS 'int.to.str' expression+ RIGHTPARENTHESIS
+    ;
+
 field
     :   (LETTER|NUMBER)+
+    |   variable
     ;
 
 variable
-    :   LETTER '!' NUMBER+
+    :   LETTER+ '!' NUMBER+
     ;
 
 equality
