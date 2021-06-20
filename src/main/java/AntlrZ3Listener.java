@@ -237,12 +237,16 @@ public class AntlrZ3Listener extends Z3BaseListener {
             output.append("\trankdir=LR;").append("\n\n");
             output.append(EMPTY_CIRCLE).append("\n");
 
+            // Declare nodes.
             for (var v : vertices) {
-                output.append(v.toString()).append("\n");
+                if (!v.getLabel().isEmpty()) {
+                    output.append(v).append("\n");
+                }
             }
 
             output.append("\n");
 
+            // Declare transitions.
             for (var e : edges) {
                 output.append(e.toString()).append("\n");
             }
