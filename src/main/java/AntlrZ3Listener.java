@@ -62,7 +62,8 @@ public class AntlrZ3Listener extends Z3BaseListener {
             }
             printLn("└───────┴───────┴───────┘");
         } else {
-            printLn(out);
+            printLn("}");
+            System.out.println(out);
         }
     }
 
