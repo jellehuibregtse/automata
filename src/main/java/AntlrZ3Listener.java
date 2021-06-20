@@ -114,6 +114,7 @@ public class AntlrZ3Listener extends Z3BaseListener {
                 for (int i = 0; i <= 7; i++) {
                     printLn(getCircle("100" + i, i == 1 || i == 7));
                 }
+                printLn("");
             }
 
             if (currentFunction.getName().equals("FinalStates")) {
@@ -127,7 +128,7 @@ public class AntlrZ3Listener extends Z3BaseListener {
                 var result = handleExpression(ctx.expression());
                 assert result != null;
                 var initState = result.toString();
-                System.out.println(getTransition("", initState, null));
+                printLn(getTransition("", initState, null));
             }
 
             if (currentFunction.getName().equals("A")) {
