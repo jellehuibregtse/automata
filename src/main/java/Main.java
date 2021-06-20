@@ -52,8 +52,12 @@ public class Main {
         ParseTreeWalker.DEFAULT.walk(listener, tree);
 
         listener.print();
-
-        new GenerateOutput(listener.getOut());
+        
+        if (!listener.getOut().isEmpty()) {
+            new GenerateOutput(listener.getOut());
+        } else {
+            new GenerateOutput(listener.getGRAPH().toString());
+        }
     }
 
     private static void visitor(String input) {
