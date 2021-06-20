@@ -6,28 +6,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AntlrZ3Listener extends Z3BaseListener {
-    List<Variable> variables = new ArrayList<>();
-    Function currentFunction;
-
     // Dot language
     private static final String EMPTY_CIRCLE = "\t\"\" [shape=none]";
-
-    private static String getCircle(String name, boolean isFinalState) {
-        return "\t\"" + name + "\" [shape=" + (isFinalState ? "double" : "") + "circle]";
-    }
-
-    private static String getTransition(String a, String b, String label) {
-        return "\t\"" + a + "\" -> \"" + b + "\"" + (label == null ? "" : " [label=" + label + "]");
-    }
-
-
     // The size of the sudoku.
     private static final int SUDOKU_SIZE = 9;
     @Getter
     private final int[][] sudokuGrid = new int[SUDOKU_SIZE][SUDOKU_SIZE];
+    private final List<Variable> variables = new ArrayList<>();
+    private Function currentFunction;
     @Getter
     private String out = "";
-
+    @Getter
+    private final LabeledDirectedGraph GRAPH = new LabeledDirectedGraph();
 
     public boolean sudokuIsEmpty() {
         int values = 0;
@@ -61,9 +51,6 @@ public class AntlrZ3Listener extends Z3BaseListener {
                 print("\n");
             }
             printLn("└───────┴───────┴───────┘");
-        } else {
-            printLn("}");
-            System.out.println(out);
         }
     }
 
@@ -106,29 +93,20 @@ public class AntlrZ3Listener extends Z3BaseListener {
             }
         } else {
             // NFA
-            if (out.isEmpty()) {
-                printLn("digraph automaton {");
-                printLn("\trankdir=LR;");
-                printLn("");
-                printLn(EMPTY_CIRCLE);
-                for (int i = 0; i <= 7; i++) {
-                    printLn(getCircle("100" + i, i == 1 || i == 7));
-                }
-                printLn("");
-            }
 
             if (currentFunction.getName().equals("FinalStates")) {
                 var result = (String) handleExpression(ctx.expression());
                 assert result != null;
                 var states = result.split(":");
-                System.out.println("TODO HANDLE FINAL STATES: " + states[0] + ", " + states[1]);
+                GRAPH.addVertex(new LabeledDirectedGraph.Vertex(states[0], true));
+                GRAPH.addVertex(new LabeledDirectedGraph.Vertex(states[1], true));
             }
 
             if (currentFunction.getName().equals("InitState")) {
                 var result = handleExpression(ctx.expression());
                 assert result != null;
                 var initState = result.toString();
-                printLn(getTransition("", initState, null));
+                GRAPH.addEdge("", initState, false, false, null);
             }
 
             if (currentFunction.getName().equals("A")) {
@@ -149,7 +127,7 @@ public class AntlrZ3Listener extends Z3BaseListener {
         var b = and.expression(1).comparison().expression(1).number();
         var c = and.expression(2).comparison().expression(1);
         // For some reason only getting last char of number, there for the "100" +.
-        printLn(getTransition("100" + a.getText(), "100" + b.getText(), c.getText()));
+        GRAPH.addEdge("100" + a.getText(), "100" + b.getText(), false, false, c.getText());
 
         getTransitionFromIte(ite.expression(2).ite());
     }
@@ -218,6 +196,91 @@ public class AntlrZ3Listener extends Z3BaseListener {
             return handleExpression(ite.expression(1));
         } else {
             return handleExpression(ite.expression(2));
+        }
+    }
+
+    public static class LabeledDirectedGraph {
+        private List<Vertex> vertices = new ArrayList<>();
+        private List<Edge> edges = new ArrayList<>();
+
+        void addVertex(Vertex v) {
+            var contains = false;
+            for (var u : vertices) {
+                if (u.getLabel().equals(v.getLabel())) {
+                    contains = true;
+                    break;
+                }
+            }
+            if (!contains) {
+                vertices.add(v);
+            }
+        }
+
+        void addEdge(String label1, String label2, boolean isFinalState1, boolean isFinalState2, String transitionLabel) {
+            var v1 = new Vertex(label1, isFinalState1);
+            var v2 = new Vertex(label2, isFinalState2);
+
+            addVertex(v1);
+            addVertex(v2);
+
+            var e = new Edge(v1, v2, transitionLabel);
+            if (!edges.contains(e)) {
+                edges.add(e);
+            }
+        }
+
+        @Override
+        public String toString() {
+            var output = new StringBuilder();
+
+            output.append("digraph automaton {").append("\n");
+            output.append("\trankdir=LR;").append("\n\n");
+            output.append(EMPTY_CIRCLE).append("\n");
+
+            // Declare nodes.
+            for (var v : vertices) {
+                if (!v.getLabel().isEmpty()) {
+                    output.append(v).append("\n");
+                }
+            }
+
+            output.append("\n");
+
+            // Declare transitions.
+            for (var e : edges) {
+                output.append(e.toString()).append("\n");
+            }
+
+            output.append("}");
+
+            return output.toString();
+        }
+
+        @Getter
+        @Setter
+        @AllArgsConstructor
+        static class Vertex {
+            private String label;
+            private boolean isFinalState;
+
+            @Override
+            public String toString() {
+                return "\t\"" + label + "\" [shape=" + (isFinalState ? "double" : "") + "circle]";
+            }
+        }
+
+        @Getter
+        @Setter
+        @AllArgsConstructor
+        static class Edge {
+            private Vertex source;
+            private Vertex destination;
+            private String label;
+
+            @Override
+            public String toString() {
+                return "\t\"" + source.getLabel() + "\" -> \"" + destination.getLabel() + "\"" + (label == null ? "" : " [label=" + label + "]");
+            }
         }
     }
 
