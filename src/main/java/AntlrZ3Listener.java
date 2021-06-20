@@ -13,11 +13,10 @@ public class AntlrZ3Listener extends Z3BaseListener {
     @Getter
     private final int[][] sudokuGrid = new int[SUDOKU_SIZE][SUDOKU_SIZE];
     private final List<Variable> variables = new ArrayList<>();
-    private Function currentFunction;
+    @Getter
+    private final LabeledDirectedGraph graph = new LabeledDirectedGraph();
     @Getter
     private String out = "";
-    @Getter
-    private final LabeledDirectedGraph GRAPH = new LabeledDirectedGraph();
 
     public boolean sudokuIsEmpty() {
         int values = 0;
@@ -66,6 +65,8 @@ public class AntlrZ3Listener extends Z3BaseListener {
 
     @Override
     public void exitValue(Z3Parser.ValueContext ctx) {
+        Function currentFunction;
+
         for (var i = 0; i < ctx.declaration().size(); i++) {
             variables.add(new Variable(ctx.declaration(i).variable().getText(), ctx.declaration(i).type(), null));
         }
@@ -98,15 +99,15 @@ public class AntlrZ3Listener extends Z3BaseListener {
                 var result = (String) handleExpression(ctx.expression());
                 assert result != null;
                 var states = result.split(":");
-                GRAPH.addVertex(new LabeledDirectedGraph.Vertex(states[0], true));
-                GRAPH.addVertex(new LabeledDirectedGraph.Vertex(states[1], true));
+                graph.addVertex(new LabeledDirectedGraph.Vertex(states[0], true));
+                graph.addVertex(new LabeledDirectedGraph.Vertex(states[1], true));
             }
 
             if (currentFunction.getName().equals("InitState")) {
                 var result = handleExpression(ctx.expression());
                 assert result != null;
                 var initState = result.toString();
-                GRAPH.addEdge("", initState, false, false, null);
+                graph.addEdge("", initState, null);
             }
 
             if (currentFunction.getName().equals("A")) {
@@ -127,7 +128,7 @@ public class AntlrZ3Listener extends Z3BaseListener {
         var b = and.expression(1).comparison().expression(1).number();
         var c = and.expression(2).comparison().expression(1);
         // For some reason only getting last char of number, there for the "100" +.
-        GRAPH.addEdge("100" + a.getText(), "100" + b.getText(), false, false, c.getText());
+        graph.addEdge("100" + a.getText(), "100" + b.getText(), c.getText());
 
         getTransitionFromIte(ite.expression(2).ite());
     }
@@ -200,8 +201,8 @@ public class AntlrZ3Listener extends Z3BaseListener {
     }
 
     public static class LabeledDirectedGraph {
-        private List<Vertex> vertices = new ArrayList<>();
-        private List<Edge> edges = new ArrayList<>();
+        private final List<Vertex> vertices = new ArrayList<>();
+        private final List<Edge> edges = new ArrayList<>();
 
         void addVertex(Vertex v) {
             var contains = false;
@@ -216,9 +217,9 @@ public class AntlrZ3Listener extends Z3BaseListener {
             }
         }
 
-        void addEdge(String label1, String label2, boolean isFinalState1, boolean isFinalState2, String transitionLabel) {
-            var v1 = new Vertex(label1, isFinalState1);
-            var v2 = new Vertex(label2, isFinalState2);
+        void addEdge(String label1, String label2, String transitionLabel) {
+            var v1 = new Vertex(label1, false);
+            var v2 = new Vertex(label2, false);
 
             addVertex(v1);
             addVertex(v2);

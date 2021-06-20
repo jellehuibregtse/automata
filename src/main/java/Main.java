@@ -56,7 +56,7 @@ public class Main {
         if (!listener.getOut().isEmpty()) {
             new GenerateOutput(listener.getOut());
         } else {
-            new GenerateOutput(listener.getGRAPH().toString());
+            new GenerateOutput(listener.getGraph().toString());
         }
     }
 
