@@ -19,14 +19,6 @@ public class AntlrZ3Listener extends Z3BaseListener {
     @Getter
     private final LabeledDirectedGraph GRAPH = new LabeledDirectedGraph();
 
-    private static String getCircle(String name, boolean isFinalState) {
-        return "\t\"" + name + "\" [shape=" + (isFinalState ? "double" : "") + "circle]";
-    }
-
-    private static String getTransition(String a, String b, String label) {
-        return "\t\"" + a + "\" -> \"" + b + "\"" + (label == null ? "" : " [label=" + label + "]");
-    }
-
     public boolean sudokuIsEmpty() {
         int values = 0;
         for (var i = 0; i < SUDOKU_SIZE; i++) {
@@ -59,9 +51,6 @@ public class AntlrZ3Listener extends Z3BaseListener {
                 print("\n");
             }
             printLn("└───────┴───────┴───────┘");
-        } else {
-            printLn("}");
-            System.out.println(out);
         }
     }
 
@@ -117,7 +106,7 @@ public class AntlrZ3Listener extends Z3BaseListener {
                 var result = handleExpression(ctx.expression());
                 assert result != null;
                 var initState = result.toString();
-                GRAPH.addEdge("", initState, false, false, "");
+                GRAPH.addEdge("", initState, false, false, null);
             }
 
             if (currentFunction.getName().equals("A")) {
@@ -215,7 +204,14 @@ public class AntlrZ3Listener extends Z3BaseListener {
         private List<Edge> edges = new ArrayList<>();
 
         void addVertex(Vertex v) {
-            if (!vertices.contains(v)) {
+            var contains = false;
+            for (var u : vertices) {
+                if (u.getLabel().equals(v.getLabel())) {
+                    contains = true;
+                    break;
+                }
+            }
+            if (!contains) {
                 vertices.add(v);
             }
         }
@@ -238,7 +234,7 @@ public class AntlrZ3Listener extends Z3BaseListener {
             var output = new StringBuilder();
 
             output.append("digraph automaton {").append("\n");
-            output.append("\trankdir=LR;").append("\n");
+            output.append("\trankdir=LR;").append("\n\n");
             output.append(EMPTY_CIRCLE).append("\n");
 
             for (var v : vertices) {
@@ -265,7 +261,7 @@ public class AntlrZ3Listener extends Z3BaseListener {
 
             @Override
             public String toString() {
-                return getCircle(label, isFinalState);
+                return "\t\"" + label + "\" [shape=" + (isFinalState ? "double" : "") + "circle]";
             }
         }
 
@@ -279,7 +275,7 @@ public class AntlrZ3Listener extends Z3BaseListener {
 
             @Override
             public String toString() {
-                return getTransition(source.getLabel(), destination.getLabel(), label);
+                return "\t\"" + source.getLabel() + "\" -> \"" + destination.getLabel() + "\"" + (label == null ? "" : " [label=" + label + "]");
             }
         }
     }
