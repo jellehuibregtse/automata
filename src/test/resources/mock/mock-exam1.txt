@@ -1,0 +1,9 @@
+(declare-fun M (Int Int Int) Int)
+
+(define-const Aa Int 2)
+(define-const Bb Int 7)
+(define-const Cc Int 5)
+(define-const Aa Int 5)
+
+(assert (and (< Aa Bb) (< Bb Cc) (< Cc Dd)))
+(assert (= Aa (+ 42 73 32767)))
