@@ -1,4 +1,5 @@
-import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -20,16 +21,16 @@ public class Main {
             }
 
             try {
-                Sudoku(input);
+                z3(input);
             } catch (ParseCancellationException e) {
                 try {
-                    Listener(input);
+                    listener(input);
                 } catch (ParseCancellationException e2) {
                     try {
-                        Visitor(input);
+                        visitor(input);
                     } catch (ParseCancellationException e3) {
                         System.err.println("Invalid input provided");
-                        System.err.println("Sudoku: " + e.getMessage());
+                        System.err.println("Z3: " + e.getMessage());
                         System.err.println("Listener: " + e2.getMessage());
                         System.err.println("Visitor: " + e3.getMessage());
                     }
@@ -38,24 +39,28 @@ public class Main {
         }
     }
 
-    private static void Sudoku(String input) {
-        var lexer = new SudokuLexer(CharStreams.fromString(input));
+    private static void z3(String input) {
+        var lexer = new Z3Lexer(CharStreams.fromString(input));
         var tokens = new CommonTokenStream(lexer);
-        var parser = new SudokuParser(tokens);
+        var parser = new Z3Parser(tokens);
         parser.removeErrorListeners();
         lexer.removeErrorListeners();
         parser.addErrorListener(ThrowingErrorListener.INSTANCE);
 
         ParseTree tree = parser.result();
-        var listener = new AntlrSudokuListener();
+        var listener = new AntlrZ3Listener();
         ParseTreeWalker.DEFAULT.walk(listener, tree);
 
         listener.print();
-
-        new GenerateOutput(listener.getOut());
+        
+        if (!listener.getOut().isEmpty()) {
+            new GenerateOutput(listener.getOut());
+        } else {
+            new GenerateOutput(listener.getGraph().toString());
+        }
     }
 
-    private static void Visitor(String input) {
+    private static void visitor(String input) {
         var lexer = new ArithmeticLexer(CharStreams.fromString(input));
         var tokens = new CommonTokenStream(lexer);
         var parser = new ArithmeticParser(tokens);
@@ -70,7 +75,7 @@ public class Main {
         new GenerateOutput(visitor.getOut());
     }
 
-    private static void Listener(String input) {
+    private static void listener(String input) {
         var lexer = new ExpressionsLexer(CharStreams.fromString(input));
         var tokens = new CommonTokenStream(lexer);
         var parser = new ExpressionsParser(tokens);
