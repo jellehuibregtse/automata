@@ -90,7 +90,7 @@ type
     ;
 
 FUNCTION
-    :   'define-fun'
+    :   'declare-fun'
     ;
 
 CONST
