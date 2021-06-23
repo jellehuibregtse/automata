@@ -5,15 +5,15 @@ program
     ;
 
 line
-    :   LEFTPARENTHESIS (declare_function|declare_constant|assertion) RIGHTPARENTHESIS
+    :   LEFTPARENTHESIS (declare_function|define_constant|assertion) RIGHTPARENTHESIS
     ;
 
 declare_function
     :   FUNCTION variable LEFTPARENTHESIS type* RIGHTPARENTHESIS type
     ;
 
-declare_constant
-    :   CONST variable type (number|bool|STR)
+define_constant
+    :   CONST variable type value
     ;
 
 assertion
@@ -32,6 +32,10 @@ expression
     |   bool
     |   number
     |   STR
+    ;
+
+value
+    :   (number|bool|STR)
     ;
 
 number
