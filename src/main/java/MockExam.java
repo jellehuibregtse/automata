@@ -17,6 +17,8 @@ public class MockExam {
         ParseTree tree = parser.program();
         var listener = new AntlrMockExamListener();
         ParseTreeWalker.DEFAULT.walk(listener, tree);
+
+        System.out.println(listener.getOutput());
     }
 
     private static String getUserInput() throws IOException {
