@@ -2,3 +2,10 @@ for (var i: number = 0; i < 5; i += 1) {
     print(i)
     print(i + 73)
 }
+
+for (var i: number = 10; i > 0; i -= 1) {
+    print(i)
+    if (i % 2 == 0) {
+        print("Divisible by 2")
+    }
+}
