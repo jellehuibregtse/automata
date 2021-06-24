@@ -1,0 +1,5 @@
+var myBufA [1, 2] = 73
+var myBufB [3, 4, 5] = 10
+
+a = myBuf1[3]
+b = 2 + myBuf2[3, 2, 7, 1]

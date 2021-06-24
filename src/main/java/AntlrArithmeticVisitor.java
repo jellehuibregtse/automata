@@ -225,6 +225,7 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
         return new Variable();
     }
 
+    // Exam exercise 1.
     @Override
     public Variable visitFor_statement(ArithmeticParser.For_statementContext ctx) {
         // Visit all the assignments of the first part of the for loop.
@@ -240,6 +241,28 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
 
             this.visit(ctx.assignment(ctx.assignment().size() - 1));
         } while (Boolean.TRUE.equals(this.visit(ctx.expression()).getBool()));
+
+        return new Variable();
+    }
+
+    // Exam exercise 2.
+    @Override
+    public Variable visitArray_assignment(ArithmeticParser.Array_assignmentContext ctx) {
+        var builder = new StringBuilder();
+        builder.append("store value ")
+                .append(ctx.expression().getText())
+                .append(" into element (");
+
+        for (int i = 0; i < ctx.NUMBER().size(); i++) {
+            builder.append(ctx.NUMBER(i))
+                    .append(i == ctx.NUMBER().size() - 1 ? "" : ",");
+        }
+
+        builder.append(") of '")
+                .append(ctx.VALUE().getText())
+                .append("'");
+
+        System.out.println(builder);
 
         return new Variable();
     }

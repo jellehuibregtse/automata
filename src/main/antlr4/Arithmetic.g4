@@ -6,6 +6,7 @@ program
 
 statement
     :   print
+    |   array_assignment
     |   assignment
     |   if_statement
     |   while_statement
@@ -64,8 +65,17 @@ assignment
     |   VALUE ('++'|'--')
     ;
 
+array_assignment
+    :   'var' VALUE '[' (NUMBER (',' NUMBER)*) ']' '=' expression
+    ;
+
+array_call
+    :   VALUE '[' (NUMBER (',' NUMBER)*) ']'
+    ;
+
 expression
-    :   function_call                                                   # FunctionCall
+    :   array_call                                                      # ArrayCall
+    |   function_call                                                   # FunctionCall
     |   expression '**' expression										# PowerExpression
 	|   expression '%' expression										# ModulusExpression
 	|   expression ('*' | '/') expression								# MultiplicationExpression
@@ -98,7 +108,7 @@ STRING
     ;
 
 TYPE
-    :   'number' | 'boolean' | 'string'
+    :   'number' | 'boolean' | 'string' | 'array'
     ;
 
 VALUE
