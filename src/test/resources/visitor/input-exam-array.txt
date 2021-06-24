@@ -1,5 +1,13 @@
-var myBufA [1, 2] = 73
-var myBufB [3, 4, 5] = 10
+var myBufA[1, 2] = 73
+var myBufB[3, 4, 5] = 10
 
 a = myBuf1[3]
 b = 2 + myBuf2[3, 2, 7, 1]
+
+var myBuf3[3]
+var myBuf4[3, 5, 13, 27]
+
+var myBuf5[3, 4] = [2, 4, 6, 8]
+var myBuf6[5, 7, 1] = []
+var myBuf7[3] = [[ 0, 0, 0 ], [ 2, 3, 4, 5, 6 ]]
+var myBuf8[3, 4, 1] = [[0, 0, 0], [], [2]]

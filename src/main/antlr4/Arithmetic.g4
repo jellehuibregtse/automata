@@ -66,11 +66,21 @@ assignment
     ;
 
 array_assignment
-    :   'var' VALUE '[' (NUMBER (',' NUMBER)*) ']' '=' expression
+    :   'var' VALUE '[' (NUMBER (',' NUMBER)*) ']'
+    |   'var' VALUE '[' (NUMBER (',' NUMBER)*) ']' '=' (expression|array_expression)
+    |   VALUE '[' (NUMBER (',' NUMBER)*) ']' '=' expression
     ;
 
 array_call
     :   VALUE '[' (NUMBER (',' NUMBER)*) ']'
+    ;
+
+array_expression
+    :   (array)|('[' (array (',' array)*) ']')
+    ;
+
+array
+    :   '[' (NUMBER (',' NUMBER)*)* ']'
     ;
 
 expression

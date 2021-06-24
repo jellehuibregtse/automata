@@ -249,22 +249,59 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
     @Override
     public Variable visitArray_assignment(ArithmeticParser.Array_assignmentContext ctx) {
         var builder = new StringBuilder();
-        builder.append("store value ")
-                .append(ctx.expression().getText())
-                .append(" into element (");
 
-        for (var i = 0; i < ctx.NUMBER().size(); i++) {
-            builder.append(ctx.NUMBER(i))
-                    .append(i == ctx.NUMBER().size() - 1 ? "" : ",");
+        // Exercise 2a.
+        if (ctx.expression() != null) {
+            builder.append("store value ")
+                    .append(ctx.expression().getText())
+                    .append(" into element (");
+
+            for (var i = 0; i < ctx.NUMBER().size(); i++) {
+                builder.append(ctx.NUMBER(i))
+                        .append(i == ctx.NUMBER().size() - 1 ? "" : ",");
+            }
+
+            builder.append(") of '")
+                    .append(ctx.VALUE().getText())
+                    .append("'");
+
+        } else if (ctx.array_expression() != null) {
+            builder.append("INITIALIZED ").append(ctx.NUMBER().size())
+                    .append("-dimensional array '")
+                    .append(ctx.VALUE().getText())
+                    .append("'")
+                    .append(" with ");
+
+            for (var i = 0; i < ctx.NUMBER().size(); i++) {
+                builder.append(ctx.NUMBER(i))
+                        .append(i == ctx.NUMBER().size() - 1 ? "" : "x");
+            }
+
+            builder.append(" elements");
+        } else {
+            // Exercise 2c.
+            builder.append(ctx.NUMBER().size())
+                    .append("-dimensional array '")
+                    .append(ctx.VALUE().getText())
+                    .append("'")
+                    .append(" with ");
+
+            for (var i = 0; i < ctx.NUMBER().size(); i++) {
+                builder.append(ctx.NUMBER(i))
+                        .append(i == ctx.NUMBER().size() - 1 ? "" : "x");
+            }
+
+            builder.append(" elements");
         }
-
-        builder.append(") of '")
-                .append(ctx.VALUE().getText())
-                .append("'");
 
         System.out.println(builder);
 
         return new Variable();
+    }
+
+    @Override
+    public Variable visitArray_expression(ArithmeticParser.Array_expressionContext ctx) {
+        return new Variable(true);
     }
 
     @Override
