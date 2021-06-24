@@ -52,4 +52,20 @@ public class AntlrMockExamListener extends MockExamBaseListener {
     public void exitAssertion(MockExamParser.AssertionContext ctx) {
         output.append(")\n");
     }
+
+    @Override
+    public void enterAnd(MockExamParser.AndContext ctx) {
+        for (var i = 0; i < ctx.expression().size(); i++) {
+            var expression = ctx.expression(i);
+
+            output.append(i != 0 ? " && " : "")
+                    .append("(")
+                    .append(expression.comparison().expression(0).variable().getText())
+                    .append(" ")
+                    .append(expression.comparison().equality().getText())
+                    .append(" ")
+                    .append(expression.comparison().expression(1).variable().getText())
+                    .append(")");
+        }
+    }
 }
