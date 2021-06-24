@@ -253,13 +253,32 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
                 .append(ctx.expression().getText())
                 .append(" into element (");
 
-        for (int i = 0; i < ctx.NUMBER().size(); i++) {
+        for (var i = 0; i < ctx.NUMBER().size(); i++) {
             builder.append(ctx.NUMBER(i))
                     .append(i == ctx.NUMBER().size() - 1 ? "" : ",");
         }
 
         builder.append(") of '")
                 .append(ctx.VALUE().getText())
+                .append("'");
+
+        System.out.println(builder);
+
+        return new Variable();
+    }
+
+    @Override
+    public Variable visitArray_call(ArithmeticParser.Array_callContext ctx) {
+        var builder = new StringBuilder();
+        builder.append("retrieve contents of element (");
+
+        for (var i = 0; i < ctx.NUMBER().size(); i++) {
+            builder.append(ctx.NUMBER(i))
+                    .append(i == ctx.NUMBER().size() - 1 ? "" : ",");
+        }
+
+        builder.append(") of '")
+                .append(ctx.VALUE())
                 .append("'");
 
         System.out.println(builder);
@@ -321,7 +340,8 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
     private enum TYPE {
         NUMBER,
         STRING,
-        BOOL
+        BOOL,
+        ARRAY
     }
 
     protected static class TypeMismatchException extends Exception {
