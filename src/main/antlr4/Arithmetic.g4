@@ -9,6 +9,7 @@ statement
     |   assignment
     |   if_statement
     |   while_statement
+    |   for_statement
     |   function_definition
     |   function_call
     |   return_statement
@@ -16,11 +17,11 @@ statement
     ;
 
 function_definition
-    :   'func' TYPE VALUE '(' arguments ')' code_block
+    :   'func' TYPE VALUE LEFTPARENTHESIS arguments RIGHTPARENTHESIS code_block
     ;
 
 function_call
-    :   VALUE '(' arguments ')'
+    :   VALUE LEFTPARENTHESIS arguments RIGHTPARENTHESIS
     ;
 
 arguments
@@ -37,6 +38,10 @@ if_statement
 
 while_statement
     :   'while' condition_block
+    ;
+
+for_statement
+    :   'for' LEFTPARENTHESIS (assignment (',' assignment)*) ';' expression ';' assignment  RIGHTPARENTHESIS code_block
     ;
 
 condition_block
@@ -56,6 +61,7 @@ assignment
     :   'var' VALUE ':' TYPE
     |   'var' VALUE ':' TYPE '=' expression
     |   VALUE ('='|'+='|'-=') expression
+    |   VALUE ('++'|'--')
     ;
 
 expression
@@ -68,7 +74,7 @@ expression
 	|   expression ('<=' | '>=' | '<' | '>' | '==' | '!=') expression	# ComparisonExpression
 	|   expression '&&' expression									    # AndExpression
 	|   expression '||' expression									    # OrExpression
-	|   '(' expression ')'										        # ParenthesisExpression
+	|   LEFTPARENTHESIS expression RIGHTPARENTHESIS										        # ParenthesisExpression
 	|   NUMBER					                                        # NumberExpression
     |   (TRUE | FALSE)	                                                # BooleanExpression
     |   VALUE				                                            # ValueExpression
@@ -97,6 +103,14 @@ TYPE
 
 VALUE
     :   ([a-zA-Z])([a-zA-Z]|[0-9]|[_])*
+    ;
+
+LEFTPARENTHESIS
+    :   '('
+    ;
+
+RIGHTPARENTHESIS
+    :   ')'
     ;
 
 WHITESPACE

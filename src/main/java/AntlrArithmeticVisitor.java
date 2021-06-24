@@ -226,6 +226,25 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
     }
 
     @Override
+    public Variable visitFor_statement(ArithmeticParser.For_statementContext ctx) {
+        // Visit all the assignments of the first part of the for loop.
+        for (var i = 0; i < ctx.assignment().size() - 1; i++) {
+            this.visit(ctx.assignment(i));
+        }
+
+        this.visit(ctx.expression());
+
+        do {
+            // Visit the code block
+            this.visit(ctx.code_block());
+
+            this.visit(ctx.assignment(ctx.assignment().size() - 1));
+        } while (Boolean.TRUE.equals(this.visit(ctx.expression()).getBool()));
+
+        return new Variable();
+    }
+
+    @Override
     public Variable visitFunction_definition(ArithmeticParser.Function_definitionContext ctx) {
         functions.put(ctx.VALUE().getText(), ctx);
         return new Variable();
