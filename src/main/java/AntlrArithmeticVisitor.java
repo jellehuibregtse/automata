@@ -2,6 +2,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,8 +16,36 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
     private String out = "";
 
     @Override
+    public Variable visitFor_statement(ArithmeticParser.For_statementContext ctx) {
+        // defining of an expression
+        this.visit(ctx.assignment(0));
+
+        Variable val = this.visit(ctx.expression());
+
+        if (val.type == TYPE.BOOL && val.getBool()) {
+            do {
+                // Visit the code block
+                this.visit(ctx.code_block());
+
+                // Update the expression
+                this.visit(ctx.assignment(ctx.assignment().size() - 1));
+            } while (this.visit(ctx.expression()).getBool());
+        }
+
+        return new Variable();
+    }
+
+    @Override
     public Variable visitAssignment(ArithmeticParser.AssignmentContext ctx) {
-        String id = ctx.VALUE().getText();
+        String id;
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        if (ctx.VALUE() != null) {
+            id = ctx.VALUE().getText();
+        } else {
+            id = ctx.array_assignment().VALUE().getText();
+        }
         Variable value = null;
         if (ctx.children.get(1).getText().equals("+=")) {
             Variable old = local_variables.get(id);
@@ -44,7 +73,64 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
             }
         } else if (ctx.children.stream().anyMatch(e -> e.getText().equals("="))) {
             value = this.visit(ctx.expression());
+            if (ctx.array_assignment() != null) {
+                // Exercise 2d
+                if (value.getType() == TYPE.ARRAY) {
+                    stringBuilder
+                            .append("INITIALIZED ")
+                            .append(ctx.array_assignment().array().NUMBER().size())
+                            .append("-dimensional array '")
+                            .append(ctx.array_assignment().VALUE().getText())
+                            .append("' with ");
+                    for (var i = 0; i < ctx.array_assignment().array().NUMBER().size(); i++) {
+                        if (i != 0) {
+                            stringBuilder.append("*");
+                        }
+                        stringBuilder.append(ctx.array_assignment().array().NUMBER(i).toString());
+                    }
+                    stringBuilder.append(" elements");
+                }
+                // Exercise 2a
+                else {
+                    stringBuilder.append("store value ").append(value.getValue().toString()).append(" into element (");
+                    for (var i = 0; i < ctx.array_assignment().array().NUMBER().size(); i++) {
+                        if (i != 0) {
+                            stringBuilder.append(",");
+                        }
+                        stringBuilder.append(ctx.array_assignment().array().NUMBER(i).toString());
+                    }
+                    stringBuilder.append(") of '").append(id).append("'");
+                }
+            }
+            // Exercise 2b
+            else if (value.getType() == TYPE.ARRAY) {
+                stringBuilder.append("retrieve contents of element (")
+                        .append(value.getValue().toString(), 1, value.getValue().toString().length() - 1)
+                        .append(") of '")
+                        .append(value.getName())
+                        .append("'");
+            }
+        } else {
+            // Exercise 2c
+            stringBuilder.append(ctx.array_assignment().array().NUMBER().size())
+                    .append("-dimensional array '")
+                    .append(ctx.array_assignment().VALUE().getText())
+                    .append("' with ");
+            for (var i = 0; i < ctx.array_assignment().array().NUMBER().size(); i++) {
+                if (i != 0) {
+                    stringBuilder.append("*");
+                }
+                stringBuilder.append(ctx.array_assignment().array().NUMBER(i).toString());
+            }
+            stringBuilder.append(" elements");
         }
+
+        if (!stringBuilder.toString().equals("")) {
+            out += (!out.equals("") ? "\n" : "") + stringBuilder.toString();
+            System.out.println(stringBuilder.toString());
+            return new Variable();
+        }
+
         if (local_variables.get(id) != null)
             return local_variables.put(id, value);
         return variables.put(id, value);
@@ -72,6 +158,14 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
         }
 
         return value;
+    }
+
+    @Override
+    public Variable visitArrayExpression(ArithmeticParser.ArrayExpressionContext ctx) {
+        if (ctx.array() != null) {
+            return new Variable(ctx.getText(), null);
+        }
+        return new Variable(ctx.array_assignment().array().getText(), ctx.array_assignment().VALUE().getText());
     }
 
     @Override
@@ -279,16 +373,17 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
     private enum TYPE {
         NUMBER,
         STRING,
-        BOOL
+        BOOL,
+        ARRAY
     }
 
-    protected static class TypeMismatchException extends Exception {
+    protected static class TypeMismatchException extends RuntimeException {
         public TypeMismatchException(String errorMessage) {
             super(errorMessage);
         }
     }
 
-    protected static class ArgumentMismatchException extends Exception {
+    protected static class ArgumentMismatchException extends RuntimeException {
         public ArgumentMismatchException(String errorMessage) {
             super(errorMessage);
         }
@@ -299,9 +394,16 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
     @NoArgsConstructor
     protected static class Variable {
         private String string;
+        private String name;
         private Integer number;
         private Boolean bool;
         private TYPE type;
+
+        public Variable(String array, String name) {
+            this.string = array;
+            this.name = name;
+            this.type = TYPE.ARRAY;
+        }
 
         public Variable(Boolean bool) {
             this.bool = bool;
@@ -321,6 +423,7 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
         public Object getValue() {
             switch (type) {
                 case STRING:
+                case ARRAY:
                     return this.string;
                 case BOOL:
                     return this.bool;
@@ -344,23 +447,26 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
             this.type = TYPE.STRING;
         }
 
-        public void concatVariables(Variable a, Variable b) throws TypeMismatchException {
-            var aType = a.getType();
-            var bType = b.getType();
-
-            if (!((aType.equals(bType) && a.type == TYPE.NUMBER) || a.type == TYPE.STRING || b.type == TYPE.STRING)) {
-                throw new TypeMismatchException("Type error: Type mismatch");
-            }
-
+        public void concatVariables(Variable a, Variable b) {
             if (a.type == TYPE.STRING || b.type == TYPE.STRING) {
                 var x1 = a.getValue().toString();
                 var x2 = b.getValue().toString();
 
                 this.string = x1 + x2;
                 this.type = TYPE.STRING;
-            } else {
+            } else if (a.type == TYPE.NUMBER && b.type == TYPE.NUMBER) {
                 this.number = a.getNumber() + b.getNumber();
                 this.type = TYPE.NUMBER;
+            } else if (a.type == TYPE.ARRAY) {
+                this.string = a.getString();
+                this.name = a.getName();
+                this.type = TYPE.ARRAY;
+            } else if (b.type == TYPE.ARRAY) {
+                this.string = b.getString();
+                this.name = b.getName();
+                this.type = TYPE.ARRAY;
+            } else if(!a.type.equals(b.type)) {
+                throw new TypeMismatchException("Type error: Type mismatch");
             }
         }
     }

@@ -6,6 +6,7 @@ program
 
 statement
     :   print
+    |   for_statement
     |   assignment
     |   if_statement
     |   while_statement
@@ -39,6 +40,10 @@ while_statement
     :   'while' condition_block
     ;
 
+for_statement
+    :   'for' '('? assignment ';' expression ';' assignment ';'? ')'? code_block
+    ;
+
 condition_block
     :   expression code_block
     ;
@@ -53,13 +58,14 @@ print
     ;
 
 assignment
-    :   'var' VALUE ':' TYPE
-    |   'var' VALUE ':' TYPE '=' expression
-    |   VALUE ('='|'+='|'-=') expression
+    :   'var' (array_assignment|VALUE) (':' TYPE)?
+    |   'var' (array_assignment|VALUE) (':' TYPE)? '=' expression
+    |   (array_assignment|VALUE) ('='|'+='|'-=') expression
     ;
 
 expression
     :   function_call                                                   # FunctionCall
+    |   (array|array_assignment)                                        # ArrayExpression
     |   expression '**' expression										# PowerExpression
 	|   expression '%' expression										# ModulusExpression
 	|   expression ('*' | '/') expression								# MultiplicationExpression
@@ -73,6 +79,14 @@ expression
     |   (TRUE | FALSE)	                                                # BooleanExpression
     |   VALUE				                                            # ValueExpression
     |   STRING			                                                # StringExpression
+    ;
+
+array_assignment
+    :   VALUE array
+    ;
+
+array
+    :   '[' ((NUMBER|array) (',' (NUMBER|array))*)? ']'
     ;
 
 NEWLINE
@@ -92,7 +106,7 @@ STRING
     ;
 
 TYPE
-    :   'number' | 'boolean' | 'string'
+    :   'number' | 'boolean' | 'string' | 'array'
     ;
 
 VALUE
