@@ -225,7 +225,6 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
         return new Variable();
     }
 
-    // Exam exercise 1.
     @Override
     public Variable visitFor_statement(ArithmeticParser.For_statementContext ctx) {
         // Visit all the assignments of the first part of the for loop.
@@ -245,12 +244,10 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
         return new Variable();
     }
 
-    // Exam exercise 2.
     @Override
     public Variable visitArray_assignment(ArithmeticParser.Array_assignmentContext ctx) {
         var builder = new StringBuilder();
 
-        // Exercise 2a.
         if (ctx.expression() != null) {
             builder.append("store value ")
                     .append(ctx.expression().getText())
@@ -279,7 +276,6 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
 
             builder.append(" elements");
         } else {
-            // Exercise 2c.
             builder.append(ctx.NUMBER().size())
                     .append("-dimensional array '")
                     .append(ctx.VALUE().getText())
@@ -377,17 +373,16 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
     private enum TYPE {
         NUMBER,
         STRING,
-        BOOL,
-        ARRAY
+        BOOL
     }
 
-    protected static class TypeMismatchException extends Exception {
+    protected static class TypeMismatchException extends RuntimeException {
         public TypeMismatchException(String errorMessage) {
             super(errorMessage);
         }
     }
 
-    protected static class ArgumentMismatchException extends Exception {
+    protected static class ArgumentMismatchException extends RuntimeException {
         public ArgumentMismatchException(String errorMessage) {
             super(errorMessage);
         }
@@ -443,23 +438,18 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
             this.type = TYPE.STRING;
         }
 
-        public void concatVariables(Variable a, Variable b) throws TypeMismatchException {
-            var aType = a.getType();
-            var bType = b.getType();
-
-            if (!((aType.equals(bType) && a.type == TYPE.NUMBER) || a.type == TYPE.STRING || b.type == TYPE.STRING)) {
-                throw new TypeMismatchException("Type error: Type mismatch");
-            }
-
+        public void concatVariables(Variable a, Variable b) {
             if (a.type == TYPE.STRING || b.type == TYPE.STRING) {
                 var x1 = a.getValue().toString();
                 var x2 = b.getValue().toString();
 
                 this.string = x1 + x2;
                 this.type = TYPE.STRING;
-            } else {
+            } else if (a.type == TYPE.NUMBER && b.type == TYPE.NUMBER) {
                 this.number = a.getNumber() + b.getNumber();
                 this.type = TYPE.NUMBER;
+            } else if (!a.type.equals(b.type)) {
+                throw new TypeMismatchException("Type error: Type mismatch");
             }
         }
     }
