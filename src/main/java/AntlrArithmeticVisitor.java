@@ -290,6 +290,7 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
             builder.append(" elements");
         }
 
+        out += (!out.equals("") ? "\n" : "") + builder.toString();
         System.out.println(builder);
 
         return new Variable();
@@ -314,6 +315,7 @@ public class AntlrArithmeticVisitor extends ArithmeticBaseVisitor<AntlrArithmeti
                 .append(ctx.VALUE())
                 .append("'");
 
+        out += (!out.equals("") ? "\n" : "") +  builder.toString();
         System.out.println(builder);
 
         return new Variable();
